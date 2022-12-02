@@ -87,23 +87,25 @@ class _MyHomePageState extends State<MyHomePage> {
     return await location.getLocation();
   }
 
-  void _process_geolocation() {
+  void _process_geolocation() async {
     if (!_geolocation_running) {
-      setState(() {
-        _geolocation_running = true;
-      });
-      _determinePosition().then(
-          (value) => {
-                setState(() {
-                  _geolocation = value.toString();
-                  _geolocation_running = false;
-                })
-              },
-          onError: (err) => {
-                setState(() {
-                  _geolocation_running = false;
-                })
-              });
+      try {
+        setState(() {
+          _geolocation_running = true;
+        });
+        LocationData location = await _determinePosition();
+        print(location);
+        var res = await Requests.get('http://192.168.50.50/geo',
+            queryParameters: {
+              'lat': location.latitude,
+              'long': location.longitude
+            }, port: 8000);
+        print(res.body);
+      } finally {
+        setState(() {
+          _geolocation_running = false;
+        });
+      }
     }
   }
 
