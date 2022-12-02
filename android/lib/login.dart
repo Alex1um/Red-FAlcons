@@ -1,3 +1,5 @@
+import 'dart:convert';
+
 import 'package:flutter/material.dart';
 import 'package:requests/requests.dart';
 
@@ -11,9 +13,31 @@ class _LoginState extends State<LoginView> {
   bool _showPass = false;
   String? _emailError;
   String? _passError;
+  String _email = '';
+  String _password = '';
+  bool _isSubmitting = false;
 
-  void _onSubmit() {}
-
+  void _onSubmit() async {
+    if (!_isSubmitting && _formKey.currentState!.validate()) {
+      _isSubmitting = true;
+      var bar = ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Processing Data')),
+      );
+      _formKey.currentState!.save();
+      var creds = {'login': _email, 'password': _password};
+      try {
+        var res = await Requests.get('http://192.168.50.50/login',
+          json: creds,
+          port: 8000,
+          timeoutSeconds: 2,
+        );
+        print(res);
+      } finally {
+        _isSubmitting = false;
+        ScaffoldMessenger.of(context).removeCurrentSnackBar();
+      }
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -37,6 +61,9 @@ class _LoginState extends State<LoginView> {
                   hintText: 'email@example.org',
                   errorText: _emailError,
                 ),
+                onSaved: (email) {
+                  _email = email!;
+                },
               ),
               TextFormField(
                 decoration: InputDecoration(
@@ -47,6 +74,9 @@ class _LoginState extends State<LoginView> {
                 obscureText: !_showPass,
                 enableSuggestions: false,
                 autocorrect: false,
+                onSaved: (pass) {
+                  _password = pass!;
+                },
               ),
               CheckboxListTile(
                 title: const Text('Show password'),
