@@ -1,7 +1,9 @@
+import 'package:android/login.dart';
 import 'package:flutter/material.dart';
-import 'package:geolocator/geolocator.dart';
-
-
+import 'package:requests/requests.dart';
+import 'package:location/location.dart';
+import 'dart:io';
+import 'dart:developer' as developer;
 
 void main() {
   runApp(const MyApp());
@@ -56,67 +58,64 @@ class MyHomePage extends StatefulWidget {
 }
 
 class _MyHomePageState extends State<MyHomePage> {
-  int _counter = 0;
   int _widget_index = 1;
   String _geolocation = 'zero';
+  bool _geolocation_running = false;
 
-  /// Determine the current position of the device.
-  ///
-  /// When the location services are not enabled or permissions
-  /// are denied the `Future` will return an error.
-  Future<Position> _determinePosition() async {
-    bool serviceEnabled;
-    LocationPermission permission;
+  Future<LocationData> _determinePosition() async {
+    Location location = new Location();
 
-    // Test if location services are enabled.
-    serviceEnabled = await Geolocator.isLocationServiceEnabled();
-    if (!serviceEnabled) {
-      // Location services are not enabled don't continue
-      // accessing the position and request users of the
-      // App to enable the location services.
-      return Future.error('Location services are disabled.');
-    }
+    bool _serviceEnabled;
+    PermissionStatus _permissionGranted;
 
-    permission = await Geolocator.checkPermission();
-    if (permission == LocationPermission.denied) {
-      permission = await Geolocator.requestPermission();
-      if (permission == LocationPermission.denied) {
-        // Permissions are denied, next time you could try
-        // requesting permissions again (this is also where
-        // Android's shouldShowRequestPermissionRationale
-        // returned true. According to Android guidelines
-        // your App should show an explanatory UI now.
-        return Future.error('Location permissions are denied');
+    _serviceEnabled = await location.serviceEnabled();
+    if (!_serviceEnabled) {
+      _serviceEnabled = await location.requestService();
+      if (!_serviceEnabled) {
+        return Future.error('Something went wrong with enabling service');
       }
     }
 
-    if (permission == LocationPermission.deniedForever) {
-      // Permissions are denied forever, handle appropriately.
-      return Future.error(
-          'Location permissions are permanently denied, we cannot request permissions.');
+    _permissionGranted = await location.hasPermission();
+    if (_permissionGranted == PermissionStatus.denied) {
+      _permissionGranted = await location.requestPermission();
+      if (_permissionGranted != PermissionStatus.granted) {
+        return Future.error('Can\'t get location permission');
+      }
     }
 
-    // When we reach here, permissions are granted and we can
-    // continue accessing the position of the device.
-    return await Geolocator.getCurrentPosition();
+    return await location.getLocation();
   }
 
-  void _incrementCounter() {
-    _determinePosition().then((value) => setState(() {_geolocation = value.toString(); }));
-    // setState(() {
-    //   // This call to setState tells the Flutter framework that something has
-    //   // changed in this State, which causes it to rerun the build method below
-    //   // so that the display can reflect the updated values. If we changed
-    //   // _counter without calling setState(), then the build method would not be
-    //   // called again, and so nothing would appear to happen.
-    //   _counter += 2;
-    // });
+  void _process_geolocation() {
+    if (!_geolocation_running) {
+      setState(() {
+        _geolocation_running = true;
+      });
+      _determinePosition().then(
+          (value) => {
+                setState(() {
+                  _geolocation = value.toString();
+                  _geolocation_running = false;
+                })
+              },
+          onError: (err) => {
+                setState(() {
+                  _geolocation_running = false;
+                })
+              });
+    }
   }
 
   void _onTabTap(int index) {
     setState(() {
       _widget_index = index;
     });
+  }
+
+  @override
+  void initState() {
+    _process_geolocation();
   }
 
   @override
@@ -131,7 +130,12 @@ class _MyHomePageState extends State<MyHomePage> {
       appBar: AppBar(
         // Here we take the value from the MyHomePage object that was created by
         // the App.build method, and use it to set our appbar title.
-        title: Text(widget.title),
+        // title: Text(widget.title),
+        leading: IconButton(
+          icon: Icon(Icons.account_circle),
+          onPressed: () => Navigator.push(
+              context, MaterialPageRoute(builder: (context) => LoginView())),
+        ),
       ),
       body: Center(
         // Center is a layout widget. It takes a single child and positions it
@@ -154,26 +158,24 @@ class _MyHomePageState extends State<MyHomePage> {
           mainAxisAlignment: MainAxisAlignment.center,
           children: <Widget>[
             const Text(
-              'You have pushed the button this many times:',
-            ),
-            Text(
-              '$_counter',
-              style: Theme.of(context).textTheme.headline4,
+              'Your geolocation is:',
             ),
             Text(_geolocation),
           ],
         ),
       ),
       floatingActionButton: FloatingActionButton(
-        onPressed: _incrementCounter,
-        tooltip: 'Increment',
+        onPressed: _process_geolocation,
+        tooltip: 'Get geolocation',
         child: const Icon(Icons.add),
-      ), // This trailing comma makes auto-formatting nicer for build methods.
+      ),
+      // This trailing comma makes auto-formatting nicer for build methods.
       floatingActionButtonLocation: FloatingActionButtonLocation.centerFloat,
-      bottomNavigationBar: BottomNavigationBar (
+      bottomNavigationBar: BottomNavigationBar(
         items: const <BottomNavigationBarItem>[
           BottomNavigationBarItem(icon: Icon(Icons.search), label: 'Search'),
-          BottomNavigationBarItem(icon: Icon(Icons.filter_list), label: 'Suggested'),
+          BottomNavigationBarItem(
+              icon: Icon(Icons.filter_list), label: 'Suggested'),
           BottomNavigationBarItem(icon: Icon(Icons.add_card), label: 'Add new'),
         ],
         selectedItemColor: Theme.of(context).colorScheme.primary,
