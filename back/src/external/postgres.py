@@ -9,7 +9,7 @@ from ..settings import settings
 
 
 class DataBase:
-    pool: Pool = None  # type: ignore
+    pool: Pool | None = None
 
 
 db = DataBase()
@@ -24,7 +24,7 @@ async def connect_postgres(test_db: str = None):
     logger.info("Initializing PostgreSQL connection")
 
     try:
-        db.pool = await create_pool(  # type: ignore
+        db.pool = await create_pool(
             user=settings.postgres_user,
             password=settings.postgres_password,
             host=settings.postgres_host,
