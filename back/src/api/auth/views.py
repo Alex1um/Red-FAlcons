@@ -3,9 +3,9 @@ from fastapi import APIRouter, status, Depends
 from fastapi.security.oauth2 import OAuth2PasswordRequestForm
 
 from .core import create_user, get_user, get_token
-from .oauth2 import get_current_user
 from .schemas import Token, UserCreate, UserResponse
-from ...db.session import get_session
+from ...external.oauth2.core import get_current_user
+from ...external.db.session import get_session
 
 
 auth_router = APIRouter(prefix="/auth", tags=["auth"])
