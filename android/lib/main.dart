@@ -124,7 +124,7 @@ class _MyHomePageState extends State<MyHomePage> {
     return Scaffold(
       appBar: AppBar(
         leading: IconButton(
-          icon: Icon(Icons.account_circle),
+          icon: const Icon(Icons.account_circle),
           onPressed: () => Navigator.push(
               context, MaterialPageRoute(builder: (context) => LoginView())),
         ),
@@ -161,40 +161,6 @@ class _MyHomePageState extends State<MyHomePage> {
         selectedItemColor: Theme.of(context).colorScheme.primary,
         currentIndex: _widgetIndex,
         onTap: _onTabTap,
-      ),
-    );
-  }
-}
-
-class card extends StatelessWidget {
-  const card({Key? key, required this.name_of_shop, required this.card_number}) : super(key: key);
-  final String name_of_shop;
-  final String card_number;
-  @override
-  Widget build(BuildContext context) {
-    return Container(
-      alignment: Alignment.center,
-      height: 150,
-      width: 238,
-      margin: const EdgeInsets.all(10.0),
-      decoration: BoxDecoration(
-        image: DecorationImage(
-            image: NetworkImage('https://yandex.ru/images/search?text=mastercard%20picture&from=tabbar&p=1&pos=37&rpt=simage&img_url=http%3A%2F%2Fmemberscommunitycu.org%2Fwp-content%2Fuploads%2F2018%2F06%2FMastercard-01.png&lr=65')
-        ),
-        border: Border.all(
-          color: Colors.grey,
-          width: 5,
-        ),
-        borderRadius: BorderRadius.all(Radius.circular(10)),
-      ),
-      child: Column(
-        textDirection: TextDirection.ltr,
-        crossAxisAlignment: CrossAxisAlignment.center,
-        mainAxisAlignment: MainAxisAlignment.center,
-        children: <Widget> [
-          Text(name_of_shop, style: TextStyle(color: Colors.deepOrange)),
-          Text(card_number, textAlign: TextAlign.center),
-        ],
       ),
     );
   }
