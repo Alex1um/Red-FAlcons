@@ -2,7 +2,7 @@ from fastapi import FastAPI
 
 from .api.auth.views import auth_router
 from .api.shops.views import shops_router
-from .db.session import Base, engine
+from .external.db.session import Base, engine
 
 
 app = FastAPI(
