@@ -9,7 +9,6 @@ import 'dart:convert';
 import 'config.dart';
 import 'card_picker.dart';
 
-
 void main() {
   runApp(const MyApp());
 }
@@ -21,22 +20,13 @@ class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-      title: 'Flutter Demo',
+      title: 'Quick Wallet app',
       themeMode: ThemeMode.system,
       darkTheme: ThemeData(
         brightness: Brightness.dark,
         primarySwatch: Colors.deepOrange,
       ),
       theme: ThemeData(
-        // This is the theme of your application.
-        //
-        // Try running your application with "flutter run". You'll see the
-        // application has a blue toolbar. Then, without quitting the app, try
-        // changing the primarySwatch below to Colors.green and then invoke
-        // "hot reload" (press "r" in the console where you ran "flutter run",
-        // or simply save your changes to "hot reload" in a Flutter IDE).
-        // Notice that the counter didn't reset back to zero; the application
-        // is not restarted.
         primarySwatch: Colors.blue,
       ),
       home: const MyHomePage(title: 'Flutter Demo Home Page'),
@@ -46,15 +36,6 @@ class MyApp extends StatelessWidget {
 
 class MyHomePage extends StatefulWidget {
   const MyHomePage({super.key, required this.title});
-
-  // This widget is the home page of your application. It is stateful, meaning
-  // that it has a State object (defined below) that contains fields that affect
-  // how it looks.
-
-  // This class is the configuration for the state. It holds the values (in this
-  // case the title) provided by the parent (in this case the App widget) and
-  // used by the build method of the State. Fields in a Widget subclass are
-  // always marked "final".
 
   final String title;
 
@@ -150,44 +131,62 @@ class _MyHomePageState extends State<MyHomePage> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        leading: IconButton(
-          icon: const Icon(Icons.account_circle),
-          onPressed: () => Navigator.push(
-              context, MaterialPageRoute(builder: (context) => LoginView())),
-        ),
-      ),
-      body: ScrollPicker(
-        items: _cards,
-        selectedItem: _cards[0],
-        onChanged: (card) {print("new item: $card");},
-        onSelectedTap: (card) {print('old item: $card');},
-        showDivider: false,
-      ),
-      floatingActionButton: FloatingActionButton(
-        onPressed: () {
-          setState(() {
-            _cards.add(
-                UserCard(nameOfShop: 'nameOfShop', cardNumber: 'cardNumber'));
-          });
-        },
-        tooltip: 'Get geolocation',
-        child: const Icon(Icons.add),
-      ),
-      // This trailing comma makes auto-formatting nicer for build methods.
-      floatingActionButtonLocation: FloatingActionButtonLocation.centerFloat,
-      bottomNavigationBar: BottomNavigationBar(
-        items: const <BottomNavigationBarItem>[
-          BottomNavigationBarItem(icon: Icon(Icons.search), label: 'Search'),
-          BottomNavigationBarItem(
-              icon: Icon(Icons.filter_list), label: 'Suggested'),
-          BottomNavigationBarItem(icon: Icon(Icons.add_card), label: 'Add new'),
-        ],
-        selectedItemColor: Theme.of(context).colorScheme.primary,
-        currentIndex: _widgetIndex,
-        onTap: _onTabTap,
-      ),
-    );
+    return DefaultTabController(
+        length: 3,
+        initialIndex: 1,
+        animationDuration: const Duration(microseconds: 250),
+        child: Scaffold(
+          appBar: AppBar(
+            leading: IconButton(
+              icon: const Icon(Icons.account_circle),
+              onPressed: () => Navigator.push(context,
+                  MaterialPageRoute(builder: (context) => LoginView())),
+            ),
+          ),
+          body: TabBarView(children: <Widget>[
+            Container(),
+            ScrollPicker(
+              items: _cards,
+              selectedItem: _cards[0],
+              onChanged: (card) {
+                print("new item: $card");
+              },
+              onSelectedTap: (card) {
+                print('old item: $card');
+              },
+              showDivider: false,
+            ),
+            Container(),
+          ]),
+          floatingActionButton: FloatingActionButton(
+            onPressed: () {
+              setState(() {
+                _cards.add(const UserCard(
+                    nameOfShop: 'nameOfShop', cardNumber: 'cardNumber'));
+              });
+            },
+            tooltip: 'Get geolocation',
+            child: const Icon(Icons.add),
+          ),
+          floatingActionButtonLocation:
+              FloatingActionButtonLocation.centerFloat,
+          bottomNavigationBar: TabBar(
+            tabs: const [
+              Tab(
+                  icon: Icon(Icons.search), text: 'Search'),
+              Tab(
+                  icon: Icon(Icons.filter_list), text: 'Suggested'),
+              Tab(
+                  icon: Icon(Icons.add_card), text: 'Add new'),
+            ],
+            indicatorColor: Theme.of(context).colorScheme.primary,
+            indicator: BoxDecoration(
+              border: Border(top: BorderSide(color: Theme.of(context).colorScheme.primary, width: 3)),
+            ),
+            unselectedLabelColor: Theme.of(context).textTheme.bodySmall?.color,
+            labelColor: Theme.of(context).colorScheme.primary,
+            onTap: _onTabTap,
+          ),
+        ));
   }
 }
