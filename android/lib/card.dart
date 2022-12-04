@@ -13,6 +13,7 @@ class UserCard extends StatelessWidget {
       width: 238,
       margin: const EdgeInsets.all(10.0),
       decoration: BoxDecoration(
+        // Decoration
         // image: DecorationImage(
         //     image: NetworkImage('https://yandex.ru/images/search?text=mastercard%20picture&from=tabbar&p=1&pos=37&rpt=simage&img_url=http%3A%2F%2Fmemberscommunitycu.org%2Fwp-content%2Fuploads%2F2018%2F06%2FMastercard-01.png&lr=65')
         // ),
@@ -27,8 +28,8 @@ class UserCard extends StatelessWidget {
         crossAxisAlignment: CrossAxisAlignment.center,
         mainAxisAlignment: MainAxisAlignment.center,
         children: <Widget> [
-          Text(name_of_shop, style: TextStyle(color: Theme.of(context).primaryColorDark)),
-          Text(card_number, textAlign: TextAlign.center),
+          Text(nameOfShop, style: TextStyle(color: Theme.of(context).primaryColorDark)),
+          Text(cardNumber, textAlign: TextAlign.center),
         ],
       ),
     );

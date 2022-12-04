@@ -124,7 +124,7 @@ class _MyHomePageState extends State<MyHomePage> {
     return Scaffold(
       appBar: AppBar(
         leading: IconButton(
-          icon: Icon(Icons.account_circle),
+          icon: const Icon(Icons.account_circle),
           onPressed: () => Navigator.push(
               context, MaterialPageRoute(builder: (context) => LoginView())),
         ),
