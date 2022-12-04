@@ -1,8 +1,11 @@
-import 'package:android/login.dart';
+import 'login.dart';
 import 'package:flutter/material.dart';
 import 'package:requests/requests.dart';
 import 'package:location/location.dart';
+import 'package:flutter_secure_storage/flutter_secure_storage.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import 'card.dart';
+import 'dart:convert';
 
 void main() {
   runApp(const MyApp());
@@ -60,9 +63,11 @@ class _MyHomePageState extends State<MyHomePage> {
   int _widgetIndex = 1;
   String _geolocation = 'zero';
   bool _isGeolocationRunning = false;
+  List<UserCard> _cards = [];
+  final FlutterSecureStorage _secureStorage = FlutterSecureStorage();
 
   Future<LocationData> _determinePosition() async {
-    Location location = new Location();
+    var location = Location();
 
     bool _serviceEnabled;
     PermissionStatus _permissionGranted;
@@ -93,12 +98,17 @@ class _MyHomePageState extends State<MyHomePage> {
           _isGeolocationRunning = true;
         });
         LocationData location = await _determinePosition();
+        setState(() {
+          _geolocation = location.toString();
+        });
         print(location);
         var res = await Requests.get('http://192.168.50.50/geo',
             queryParameters: {
               'lat': location.latitude,
               'long': location.longitude
-            }, port: 8000);
+            },
+            port: 8000,
+            timeoutSeconds: 5);
         print(res.body);
       } finally {
         setState(() {
@@ -114,8 +124,23 @@ class _MyHomePageState extends State<MyHomePage> {
     });
   }
 
+  void _loadCards() async {
+    var prefs = await SharedPreferences.getInstance();
+    var cards = prefs.getString('cards');
+    if (cards != null) {
+      Iterable l = jsonDecode(cards);
+      _cards = List<UserCard>.from(l.map((e) => UserCard.fromJson(e)));
+    }
+  }
+
+  void _dumpCards() async {
+    var prefs = await SharedPreferences.getInstance();
+    prefs.setString('cards', jsonEncode(_cards));
+  }
+
   @override
   void initState() {
+    _loadCards();
     _processGeolocation();
   }
 

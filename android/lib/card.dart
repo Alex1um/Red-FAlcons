@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'dart:convert';
 
 
 class UserCard extends StatelessWidget {
@@ -34,4 +35,13 @@ class UserCard extends StatelessWidget {
       ),
     );
   }
+
+  UserCard.fromJson(Map<String, dynamic> json)
+      : nameOfShop = json['name'],
+        cardNumber = json['number'];
+
+  Map<String, dynamic> toJson() => {
+    'name': nameOfShop,
+    'number': cardNumber,
+  };
 }
