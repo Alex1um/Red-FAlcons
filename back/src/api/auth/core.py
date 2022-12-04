@@ -4,10 +4,10 @@ from loguru import logger
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy import select
 
-from .oauth2 import create_access_token
-from .schemas import UserCreate, UserLogin
+from ...external.db.models import User
+from ...external.oauth2.core import create_access_token
+from .schemas import UserCreate
 from .utils import hash_password, verify
-from ...db.models import User
 
 
 async def create_user(user: UserCreate, db: AsyncSession) -> User:
