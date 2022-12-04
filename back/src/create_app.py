@@ -1,8 +1,8 @@
 from fastapi import FastAPI
 
-# from .external.postgres import connect_postgres, disconnect_postgres
-
+from .api.auth.views import auth_router
 from .api.shops.views import shops_router
+from .db.session import Base, engine
 
 
 app = FastAPI(
@@ -10,10 +10,14 @@ app = FastAPI(
 )
 
 
+@app.on_event("startup")
+async def init_tables():
+    async with engine.begin() as conn:
+        # await conn.run_sync(Base.metadata.drop_all)
+        await conn.run_sync(Base.metadata.create_all)
+
+
 def create_app():
+    app.include_router(auth_router)
     app.include_router(shops_router)
-
-    # app.add_event_handler("startup", connect_postgres)
-    # app.add_event_handler("shutdown", disconnect_postgres)
-
     return app

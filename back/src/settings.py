@@ -8,6 +8,9 @@ class Settings(BaseSettings):
     postgres_password: str
     postgres_database_name: str
 
+    secret: str
+    algorithm: str
+
     class Config:
         env_file = ".env"
         env_file_encoding = "utf-8"
