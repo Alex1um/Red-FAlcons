@@ -1,16 +1,16 @@
 from fastapi import HTTPException, status
 from fastapi.security.oauth2 import OAuth2PasswordRequestForm
 from loguru import logger
-from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy import select
+from sqlalchemy.ext.asyncio import AsyncSession
 
 from ...external.db.models import User
 from ...external.oauth2.core import create_access_token
-from .schemas import UserCreate
+from .schemas import UserIn
 from .utils import hash_password, verify
 
 
-async def create_user(user: UserCreate, db: AsyncSession) -> User:
+async def create_user(user: UserIn, db: AsyncSession) -> User:
     """
     Creates user in DB.
 
@@ -79,5 +79,6 @@ async def get_token(
         )
 
     access_token = create_access_token({"user_id": user.id})
+    logger.info("Generated acces_token")
 
     return {"access_token": access_token, "token_type": "Bearer"}
