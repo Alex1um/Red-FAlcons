@@ -163,7 +163,7 @@ class _MyHomePageState extends State<MyHomePage> {
         selectedItem: _cards[0],
         onChanged: (card) {print("new item: $card");},
         onSelectedTap: (card) {print('old item: $card');},
-        showDivider: true,
+        showDivider: false,
       ),
       floatingActionButton: FloatingActionButton(
         onPressed: () {

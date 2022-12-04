@@ -21,7 +21,6 @@ class ScrollPicker<T extends Widget> extends StatefulWidget {
   final T selectedItem;
   final bool showDivider;
 
-
   @override
   _ScrollPickerState createState() => _ScrollPickerState<T>(selectedItem);
 }
@@ -69,16 +68,16 @@ class _ScrollPickerState<T extends Widget> extends State<ScrollPicker<T>> {
               child: ListWheelScrollView.useDelegate(
                 childDelegate: ListWheelChildBuilderDelegate(
                     builder: (BuildContext context, int index) {
-                      if (index < 0 || index > widget.items.length - 1) {
-                        return null;
-                      }
+                  if (index < 0 || index > widget.items.length - 1) {
+                    return null;
+                  }
 
-                      var value = widget.items[index] as Widget;
+                  var value = widget.items[index] as Widget;
 
-                      return Center(
-                        child: value,
-                      );
-                    }),
+                  return Center(
+                    child: value,
+                  );
+                }),
                 controller: scrollController,
                 itemExtent: itemHeight,
                 onSelectedItemChanged: _onSelectedItemChanged,
@@ -91,20 +90,22 @@ class _ScrollPickerState<T extends Widget> extends State<ScrollPicker<T>> {
             ),
             // Center(child: widget.showDivider ? Divider() : Container()),
             // GestureDetector(onTap: () => widget.onSelectedTap(widget.selectedItem), child: Divider(),),
-            GestureDetector(onTap: () => widget.onSelectedTap(widget.selectedItem), child: Center(
-              child: widget.showDivider ? Container(
-                height: itemHeight,
-                width: cardWidth,
-                decoration: BoxDecoration(
-                  border: Border(
-                    top: BorderSide(
-                        color: themeData.colorScheme.secondary, width: 1.0),
-                    bottom: BorderSide(
-                        color: themeData.colorScheme.secondary, width: 1.0),
+            GestureDetector(
+                onTap: () => widget.onSelectedTap(widget.selectedItem),
+                child: Center(
+                    child: Container(
+                  height: itemHeight,
+                  width: cardWidth,
+                  decoration: BoxDecoration(
+                    color: Colors.transparent,
+                    border: widget.showDivider ? Border(
+                      top: BorderSide(
+                          color: themeData.colorScheme.secondary, width: 1.0),
+                      bottom: BorderSide(
+                          color: themeData.colorScheme.secondary, width: 1.0),
+                    ) : null,
                   ),
-                ),
-              ) : Container(),
-            ))
+                )))
           ],
         );
       },
