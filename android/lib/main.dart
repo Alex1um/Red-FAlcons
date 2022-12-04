@@ -7,6 +7,8 @@ import 'package:shared_preferences/shared_preferences.dart';
 import 'card.dart';
 import 'dart:convert';
 import 'config.dart';
+import 'card_picker.dart';
+
 
 void main() {
   runApp(const MyApp());
@@ -65,6 +67,7 @@ class _MyHomePageState extends State<MyHomePage> {
   String _geolocation = 'zero';
   bool _isGeolocationRunning = false;
   List<UserCard> _cards = [];
+  UserCard? _selected_card;
   final FlutterSecureStorage _secureStorage = FlutterSecureStorage();
 
   Future<LocationData> _determinePosition() async {
@@ -155,23 +158,20 @@ class _MyHomePageState extends State<MyHomePage> {
               context, MaterialPageRoute(builder: (context) => LoginView())),
         ),
       ),
-      body: Center(
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: <Widget>[
-            const UserCard(
-              nameOfShop: '123',
-              cardNumber: 'asd',
-            ),
-            const Text(
-              'Your geolocation is:',
-            ),
-            Text(_geolocation),
-          ],
-        ),
+      body: ScrollPicker(
+        items: _cards,
+        selectedItem: _cards[0],
+        onChanged: (card) {print("new item: $card");},
+        onSelectedTap: (card) {print('old item: $card');},
+        showDivider: true,
       ),
       floatingActionButton: FloatingActionButton(
-        onPressed: _processGeolocation,
+        onPressed: () {
+          setState(() {
+            _cards.add(
+                UserCard(nameOfShop: 'nameOfShop', cardNumber: 'cardNumber'));
+          });
+        },
         tooltip: 'Get geolocation',
         child: const Icon(Icons.add),
       ),

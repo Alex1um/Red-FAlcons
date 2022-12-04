@@ -1,8 +1,12 @@
 import 'package:flutter/material.dart';
 import 'dart:convert';
 
+const cardHeight = 150.0;
+const cardWidth = 238.0;
 
 class UserCard extends StatelessWidget {
+
+
   const UserCard({Key? key, required this.nameOfShop, required this.cardNumber}) : super(key: key);
   final String nameOfShop;
   final String cardNumber;
@@ -10,8 +14,8 @@ class UserCard extends StatelessWidget {
   Widget build(BuildContext context) {
     return Container(
       alignment: Alignment.center,
-      height: 150,
-      width: 238,
+      height: cardHeight,
+      width: cardWidth,
       margin: const EdgeInsets.all(10.0),
       decoration: BoxDecoration(
         // Decoration
