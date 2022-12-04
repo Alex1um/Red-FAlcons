@@ -2,7 +2,7 @@ from datetime import datetime
 from pydantic import BaseModel
 
 
-class CardResponse(BaseModel):
+class CardOut(BaseModel):
     store_name: str
     code: int
     created_at: datetime

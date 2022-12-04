@@ -6,11 +6,11 @@ from sqlalchemy.ext.asyncio import AsyncSession
 
 from ...external.db.models import User
 from ...external.oauth2.core import create_access_token
-from .schemas import UserCreate
+from .schemas import UserIn
 from .utils import hash_password, verify
 
 
-async def create_user(user: UserCreate, db: AsyncSession) -> User:
+async def create_user(user: UserIn, db: AsyncSession) -> User:
     """
     Creates user in DB.
 
