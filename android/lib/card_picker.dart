@@ -75,13 +75,8 @@ class _ScrollPickerState<T extends Widget> extends State<ScrollPicker<T>> {
 
                       var value = widget.items[index] as Widget;
 
-                      // final TextStyle? itemStyle =
-                      // (value == selectedValue) ? selectedStyle : defaultStyle;
-
                       return Center(
                         child: value,
-                        // child: Text(widget.transformer?.call(value) ?? '$value',
-                        //     style: itemStyle),
                       );
                     }),
                 controller: scrollController,
@@ -94,10 +89,12 @@ class _ScrollPickerState<T extends Widget> extends State<ScrollPicker<T>> {
                 // magnification: 1.2,
               ),
             ),
-            Center(child: widget.showDivider ? Divider() : Container()),
-            Center(
+            // Center(child: widget.showDivider ? Divider() : Container()),
+            // GestureDetector(onTap: () => widget.onSelectedTap(widget.selectedItem), child: Divider(),),
+            GestureDetector(onTap: () => widget.onSelectedTap(widget.selectedItem), child: Center(
               child: widget.showDivider ? Container(
                 height: itemHeight,
+                width: cardWidth,
                 decoration: BoxDecoration(
                   border: Border(
                     top: BorderSide(
@@ -107,7 +104,7 @@ class _ScrollPickerState<T extends Widget> extends State<ScrollPicker<T>> {
                   ),
                 ),
               ) : Container(),
-            )
+            ))
           ],
         );
       },
