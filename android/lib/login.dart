@@ -2,8 +2,11 @@ import 'dart:convert';
 
 import 'package:flutter/material.dart';
 import 'package:requests/requests.dart';
+import 'config.dart';
 
 class LoginView extends StatefulWidget {
+  const LoginView({super.key});
+
   @override
   State<StatefulWidget> createState() => _LoginState();
 }
@@ -26,9 +29,9 @@ class _LoginState extends State<LoginView> {
       _formKey.currentState!.save();
       var creds = {'login': _email, 'password': _password};
       try {
-        var res = await Requests.get('http://192.168.50.50/login',
+        var res = await Requests.get('$serverAddress/login',
           json: creds,
-          port: 8000,
+          port: serverPort,
           timeoutSeconds: 2,
         );
         print(res);
@@ -81,7 +84,8 @@ class _LoginState extends State<LoginView> {
               CheckboxListTile(
                 title: const Text('Show password'),
                 value: _showPass,
-                onChanged: (value) => {
+                onChanged: (value) =>
+                {
                   setState(() {
                     // if (value != null) {
                     _showPass = value!;

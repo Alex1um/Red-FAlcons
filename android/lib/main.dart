@@ -6,6 +6,7 @@ import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'card.dart';
 import 'dart:convert';
+import 'config.dart';
 
 void main() {
   runApp(const MyApp());
@@ -102,12 +103,12 @@ class _MyHomePageState extends State<MyHomePage> {
           _geolocation = location.toString();
         });
         print(location);
-        var res = await Requests.get('http://192.168.50.50/geo',
+        var res = await Requests.get('$serverAddress/geo',
             queryParameters: {
               'lat': location.latitude,
               'long': location.longitude
             },
-            port: 8000,
+            port: serverPort,
             timeoutSeconds: 5);
         print(res.body);
       } finally {
