@@ -1,11 +1,10 @@
-from loguru import logger
 from sqlalchemy.ext.asyncio import AsyncSession
 from fastapi import APIRouter, status, Depends
 from fastapi.security.oauth2 import OAuth2PasswordRequestForm
 
 from .core import create_user, get_user, get_token
 from .oauth2 import get_current_user
-from .schemas import UserCreate, UserResponse
+from .schemas import Token, UserCreate, UserResponse
 from ...db.session import get_session
 
 
@@ -19,7 +18,7 @@ async def create_user_view(user: UserCreate, db: AsyncSession = Depends(get_sess
     return await create_user(user, db)
 
 
-@auth_router.post("/login")
+@auth_router.post("/login", response_model=Token)
 async def login_view(
     user_credentials: OAuth2PasswordRequestForm = Depends(),
     db: AsyncSession = Depends(get_session),

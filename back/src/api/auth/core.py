@@ -25,7 +25,7 @@ async def create_user(user: UserCreate, db: AsyncSession) -> User:
         logger.info(f"User with email {user.username} already exists.")
         raise HTTPException(
             status_code=status.HTTP_422_UNPROCESSABLE_ENTITY,
-            detail="Email is already taken",
+            detail="Username is already taken",
         )
 
     hashed_pass = hash_password(user.password)
@@ -80,4 +80,4 @@ async def get_token(
 
     access_token = create_access_token({"user_id": user.id})
 
-    return {"access_tocken": access_token, "token_type": "Bearer"}
+    return {"access_token": access_token, "token_type": "Bearer"}
