@@ -1,8 +1,8 @@
 from fastapi import HTTPException, status
 from fastapi.security.oauth2 import OAuth2PasswordRequestForm
 from loguru import logger
-from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy import select
+from sqlalchemy.ext.asyncio import AsyncSession
 
 from ...external.db.models import User
 from ...external.oauth2.core import create_access_token
