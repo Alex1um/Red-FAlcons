@@ -31,6 +31,6 @@ async def login_view(
 async def get_user_view(
     id: int,
     db: AsyncSession = Depends(get_session),
-    user_id: TokenData = Depends(get_current_user),
+    token_data: TokenData = Depends(get_current_user),
 ):
     return await get_user(id, db)

@@ -79,5 +79,6 @@ async def get_token(
         )
 
     access_token = create_access_token({"user_id": user.id})
+    logger.info("Generated acces_token")
 
     return {"access_token": access_token, "token_type": "Bearer"}
