@@ -50,6 +50,7 @@ class _MyHomePageState extends State<MyHomePage> {
   List<UserCard> _cards = [];
   UserCard? _selected_card;
   final FlutterSecureStorage _secureStorage = FlutterSecureStorage();
+  List<UserCard>? _searched;
 
   Future<LocationData> _determinePosition() async {
     var location = Location();
@@ -144,7 +145,38 @@ class _MyHomePageState extends State<MyHomePage> {
             ),
           ),
           body: TabBarView(children: <Widget>[
-            Container(),
+            Column(children: [
+              Expanded(
+                  child: GridView.count(
+                childAspectRatio: cardWidth / cardHeight,
+                crossAxisCount: 2,
+                children: _searched ?? _cards,
+              )),
+              Padding(
+                  padding: const EdgeInsets.all(5.0),
+                  child: TextFormField(
+                    onChanged: (value) {
+                      setState(() {
+                        if (value.isEmpty) {
+                          _searched = null;
+                        } else {
+                          _searched = _cards
+                              .where((UserCard element) =>
+                          element.nameOfShop.contains(value))
+                              .toList();
+                        }
+                      });
+                    },
+                    // controller: editingController,
+                    decoration: const InputDecoration(
+                        labelText: "Search",
+                        hintText: "Search",
+                        prefixIcon: Icon(Icons.search),
+                        border: OutlineInputBorder(
+                            borderRadius:
+                                BorderRadius.all(Radius.circular(25.0)))),
+                  ))
+            ]),
             ScrollPicker(
               items: _cards,
               selectedItem: _cards[0],
@@ -172,16 +204,15 @@ class _MyHomePageState extends State<MyHomePage> {
               FloatingActionButtonLocation.centerFloat,
           bottomNavigationBar: TabBar(
             tabs: const [
-              Tab(
-                  icon: Icon(Icons.search), text: 'Search'),
-              Tab(
-                  icon: Icon(Icons.filter_list), text: 'Suggested'),
-              Tab(
-                  icon: Icon(Icons.add_card), text: 'Add new'),
+              Tab(icon: Icon(Icons.search), text: 'Search'),
+              Tab(icon: Icon(Icons.filter_list), text: 'Suggested'),
+              Tab(icon: Icon(Icons.add_card), text: 'Add new'),
             ],
             indicatorColor: Theme.of(context).colorScheme.primary,
             indicator: BoxDecoration(
-              border: Border(top: BorderSide(color: Theme.of(context).colorScheme.primary, width: 3)),
+              border: Border(
+                  top: BorderSide(
+                      color: Theme.of(context).colorScheme.primary, width: 3)),
             ),
             unselectedLabelColor: Theme.of(context).textTheme.bodySmall?.color,
             labelColor: Theme.of(context).colorScheme.primary,
