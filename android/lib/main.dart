@@ -2,8 +2,7 @@ import 'package:android/login.dart';
 import 'package:flutter/material.dart';
 import 'package:requests/requests.dart';
 import 'package:location/location.dart';
-import 'dart:io';
-import 'dart:developer' as developer;
+import 'card.dart';
 
 void main() {
   runApp(const MyApp());
@@ -58,9 +57,9 @@ class MyHomePage extends StatefulWidget {
 }
 
 class _MyHomePageState extends State<MyHomePage> {
-  int _widget_index = 1;
+  int _widgetIndex = 1;
   String _geolocation = 'zero';
-  bool _geolocation_running = false;
+  bool _isGeolocationRunning = false;
 
   Future<LocationData> _determinePosition() async {
     Location location = new Location();
@@ -87,11 +86,11 @@ class _MyHomePageState extends State<MyHomePage> {
     return await location.getLocation();
   }
 
-  void _process_geolocation() async {
-    if (!_geolocation_running) {
+  void _processGeolocation() async {
+    if (!_isGeolocationRunning) {
       try {
         setState(() {
-          _geolocation_running = true;
+          _isGeolocationRunning = true;
         });
         LocationData location = await _determinePosition();
         print(location);
@@ -103,7 +102,7 @@ class _MyHomePageState extends State<MyHomePage> {
         print(res.body);
       } finally {
         setState(() {
-          _geolocation_running = false;
+          _isGeolocationRunning = false;
         });
       }
     }
@@ -111,28 +110,19 @@ class _MyHomePageState extends State<MyHomePage> {
 
   void _onTabTap(int index) {
     setState(() {
-      _widget_index = index;
+      _widgetIndex = index;
     });
   }
 
   @override
   void initState() {
-    _process_geolocation();
+    _processGeolocation();
   }
 
   @override
   Widget build(BuildContext context) {
-    // This method is rerun every time setState is called, for instance as done
-    // by the _incrementCounter method above.
-    //
-    // The Flutter framework has been optimized to make rerunning build methods
-    // fast, so that you can just rebuild anything that needs updating rather
-    // than having to individually change instances of widgets.
     return Scaffold(
       appBar: AppBar(
-        // Here we take the value from the MyHomePage object that was created by
-        // the App.build method, and use it to set our appbar title.
-        // title: Text(widget.title),
         leading: IconButton(
           icon: Icon(Icons.account_circle),
           onPressed: () => Navigator.push(
@@ -140,25 +130,13 @@ class _MyHomePageState extends State<MyHomePage> {
         ),
       ),
       body: Center(
-        // Center is a layout widget. It takes a single child and positions it
-        // in the middle of the parent.
         child: Column(
-          // Column is also a layout widget. It takes a list of children and
-          // arranges them vertically. By default, it sizes itself to fit its
-          // children horizontally, and tries to be as tall as its parent.
-          //
-          // Invoke "debug painting" (press "p" in the console, choose the
-          // "Toggle Debug Paint" action from the Flutter Inspector in Android
-          // Studio, or the "Toggle Debug Paint" command in Visual Studio Code)
-          // to see the wireframe for each widget.
-          //
-          // Column has various properties to control how it sizes itself and
-          // how it positions its children. Here we use mainAxisAlignment to
-          // center the children vertically; the main axis here is the vertical
-          // axis because Columns are vertical (the cross axis would be
-          // horizontal).
           mainAxisAlignment: MainAxisAlignment.center,
           children: <Widget>[
+            const UserCard(
+              nameOfShop: '123',
+              cardNumber: 'asd',
+            ),
             const Text(
               'Your geolocation is:',
             ),
@@ -167,7 +145,7 @@ class _MyHomePageState extends State<MyHomePage> {
         ),
       ),
       floatingActionButton: FloatingActionButton(
-        onPressed: _process_geolocation,
+        onPressed: _processGeolocation,
         tooltip: 'Get geolocation',
         child: const Icon(Icons.add),
       ),
@@ -181,42 +159,8 @@ class _MyHomePageState extends State<MyHomePage> {
           BottomNavigationBarItem(icon: Icon(Icons.add_card), label: 'Add new'),
         ],
         selectedItemColor: Theme.of(context).colorScheme.primary,
-        currentIndex: _widget_index,
+        currentIndex: _widgetIndex,
         onTap: _onTabTap,
-      ),
-    );
-  }
-}
-
-class card extends StatelessWidget {
-  const card({Key? key, required this.name_of_shop, required this.card_number}) : super(key: key);
-  final String name_of_shop;
-  final String card_number;
-  @override
-  Widget build(BuildContext context) {
-    return Container(
-      alignment: Alignment.center,
-      height: 150,
-      width: 238,
-      margin: const EdgeInsets.all(10.0),
-      decoration: BoxDecoration(
-        image: DecorationImage(
-            image: NetworkImage('https://yandex.ru/images/search?text=mastercard%20picture&from=tabbar&p=1&pos=37&rpt=simage&img_url=http%3A%2F%2Fmemberscommunitycu.org%2Fwp-content%2Fuploads%2F2018%2F06%2FMastercard-01.png&lr=65')
-        ),
-        border: Border.all(
-          color: Colors.grey,
-          width: 5,
-        ),
-        borderRadius: BorderRadius.all(Radius.circular(10)),
-      ),
-      child: Column(
-        textDirection: TextDirection.ltr,
-        crossAxisAlignment: CrossAxisAlignment.center,
-        mainAxisAlignment: MainAxisAlignment.center,
-        children: <Widget> [
-          Text(name_of_shop, style: TextStyle(color: Colors.deepOrange)),
-          Text(card_number, textAlign: TextAlign.center),
-        ],
       ),
     );
   }
