@@ -4,7 +4,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from ...external.db.session import get_session
 from ...external.oauth2.core import get_current_user
 from ...external.oauth2.schemas import TokenData
-from .core import create_card, get_all_cards
+from .core import create_card, get_all_cards, get_sorted_card_list
 from .schemas import CardIn, CardOut
 
 
@@ -27,7 +27,7 @@ async def get_geo_cards_view(
     token_data: TokenData = Depends(get_current_user),
     db: AsyncSession = Depends(get_session),
 ):
-    pass
+    return await get_sorted_card_list(latitude, longitude, db)
 
 
 @cards_router.post(
