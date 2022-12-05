@@ -2,7 +2,7 @@ from fastapi import FastAPI
 
 from .api.auth.views import auth_router
 from .api.cards.views import cards_router
-from .api.shops.views import shops_router
+from .api.stores.views import shops_router
 from .external.db.session import Base, engine
 
 
