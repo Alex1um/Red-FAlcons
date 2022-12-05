@@ -19,7 +19,6 @@ async def get_all_cards_view(
     return await get_all_cards(int(token_data.id), db)
 
 
-# For Josh Woods to change
 @cards_router.get(
     "/geo", summary="Get cards sorted by geo.", response_model=list[CardOut | None]
 )
