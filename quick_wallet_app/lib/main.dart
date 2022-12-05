@@ -10,11 +10,12 @@ import 'config.dart';
 import 'card_picker.dart';
 
 void main() {
-  runApp(const MyApp());
+  runApp(const QuickWalletApp());
 }
 
-class MyApp extends StatelessWidget {
-  const MyApp({super.key});
+// App class
+class QuickWalletApp extends StatelessWidget {
+  const QuickWalletApp({super.key});
 
   // This widget is the root of your application.
   @override
@@ -29,29 +30,31 @@ class MyApp extends StatelessWidget {
       theme: ThemeData(
         primarySwatch: Colors.blue,
       ),
-      home: const MyHomePage(title: 'Flutter Demo Home Page'),
+      home: const HomePage(title: 'Flutter Demo Home Page'),
     );
   }
 }
 
-class MyHomePage extends StatefulWidget {
-  const MyHomePage({super.key, required this.title});
+class HomePage extends StatefulWidget {
+  const HomePage({super.key, required this.title});
 
   final String title;
 
   @override
-  State<MyHomePage> createState() => _MyHomePageState();
+  State<HomePage> createState() => _HomePageState();
 }
 
-class _MyHomePageState extends State<MyHomePage> {
-  int _widgetIndex = 1;
-  String _geolocation = 'zero';
+class _HomePageState extends State<HomePage> {
+  // Status of calculating geolocation
   bool _isGeolocationRunning = false;
+  // List of all available cards.
   List<UserCard> _cards = [];
-  UserCard? _selected_card;
+  // Token storage
   final FlutterSecureStorage _secureStorage = FlutterSecureStorage();
+  // filtered list of cards
   List<UserCard>? _searched;
 
+  // Enable needed services and get geolocation
   Future<LocationData> _determinePosition() async {
     var location = Location();
 
@@ -77,6 +80,7 @@ class _MyHomePageState extends State<MyHomePage> {
     return await location.getLocation();
   }
 
+  // Get geolocation and process it
   void _processGeolocation() async {
     if (!_isGeolocationRunning) {
       try {
@@ -84,10 +88,6 @@ class _MyHomePageState extends State<MyHomePage> {
           _isGeolocationRunning = true;
         });
         LocationData location = await _determinePosition();
-        setState(() {
-          _geolocation = location.toString();
-        });
-        print(location);
         var res = await Requests.get('$serverAddress/geo',
             queryParameters: {
               'lat': location.latitude,
@@ -95,7 +95,6 @@ class _MyHomePageState extends State<MyHomePage> {
             },
             port: serverPort,
             timeoutSeconds: 5);
-        print(res.body);
       } finally {
         setState(() {
           _isGeolocationRunning = false;
@@ -104,12 +103,7 @@ class _MyHomePageState extends State<MyHomePage> {
     }
   }
 
-  void _onTabTap(int index) {
-    setState(() {
-      _widgetIndex = index;
-    });
-  }
-
+  // Load cards from local storage
   void _loadCards() async {
     var prefs = await SharedPreferences.getInstance();
     var cards = prefs.getString('cards');
@@ -119,23 +113,27 @@ class _MyHomePageState extends State<MyHomePage> {
     }
   }
 
+  // Safe cards to local storage
   void _dumpCards() async {
     var prefs = await SharedPreferences.getInstance();
     prefs.setString('cards', jsonEncode(_cards));
   }
 
+  // on app init
   @override
   void initState() {
     _loadCards();
     _processGeolocation();
   }
 
+  // Render home page
   @override
   Widget build(BuildContext context) {
     return DefaultTabController(
         length: 3,
         initialIndex: 1,
         animationDuration: const Duration(microseconds: 250),
+        // Main widget with top and bottom bar
         child: Scaffold(
           appBar: AppBar(
             leading: IconButton(
@@ -144,14 +142,18 @@ class _MyHomePageState extends State<MyHomePage> {
                   MaterialPageRoute(builder: (context) => LoginView())),
             ),
           ),
+          // tabs body
           body: TabBarView(children: <Widget>[
+            // Search tab body
             Column(children: [
+              // Grid
               Expanded(
                   child: GridView.count(
                 childAspectRatio: cardWidth / cardHeight,
                 crossAxisCount: 2,
                 children: _searched ?? _cards,
               )),
+              // Search box
               Padding(
                   padding: const EdgeInsets.all(5.0),
                   child: TextFormField(
@@ -177,6 +179,7 @@ class _MyHomePageState extends State<MyHomePage> {
                                 BorderRadius.all(Radius.circular(25.0)))),
                   ))
             ]),
+            // Card Picker home page tab
             ScrollPicker(
               items: _cards,
               selectedItem: _cards[0],
@@ -188,8 +191,10 @@ class _MyHomePageState extends State<MyHomePage> {
               },
               showDivider: false,
             ),
+            // Add card tab
             Container(),
           ]),
+          // Debug button
           floatingActionButton: FloatingActionButton(
             onPressed: () {
               setState(() {
@@ -202,6 +207,7 @@ class _MyHomePageState extends State<MyHomePage> {
           ),
           floatingActionButtonLocation:
               FloatingActionButtonLocation.centerFloat,
+          // Bottom navigation bar
           bottomNavigationBar: TabBar(
             tabs: const [
               Tab(icon: Icon(Icons.search), text: 'Search'),
@@ -216,7 +222,6 @@ class _MyHomePageState extends State<MyHomePage> {
             ),
             unselectedLabelColor: Theme.of(context).textTheme.bodySmall?.color,
             labelColor: Theme.of(context).colorScheme.primary,
-            onTap: _onTabTap,
           ),
         ));
   }

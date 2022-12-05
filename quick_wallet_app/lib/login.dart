@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:requests/requests.dart';
 import 'config.dart';
 
+// Login page Widget
 class LoginView extends StatefulWidget {
   const LoginView({super.key});
 
@@ -13,13 +14,20 @@ class LoginView extends StatefulWidget {
 
 class _LoginState extends State<LoginView> {
   final GlobalKey<FormState> _formKey = GlobalKey<FormState>();
+  // Is showing pass?
   bool _showPass = false;
+  // Showing error below email field
   String? _emailError;
+  // Showing error below password field
   String? _passError;
+  // Email field value
   String _email = '';
+  // Password field value
   String _password = '';
+  // Is future running?
   bool _isSubmitting = false;
 
+  // Request on submit
   void _onSubmit() async {
     if (!_isSubmitting && _formKey.currentState!.validate()) {
       _isSubmitting = true;

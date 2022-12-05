@@ -1,11 +1,12 @@
 import 'package:flutter/material.dart';
 import 'dart:convert';
 
+// Card sizes
 const cardHeight = 150.0;
 const cardWidth = 238.0;
 
+// Card class
 class UserCard extends StatelessWidget {
-
 
   const UserCard({Key? key, required this.nameOfShop, required this.cardNumber}) : super(key: key);
   final String nameOfShop;
@@ -40,10 +41,12 @@ class UserCard extends StatelessWidget {
     );
   }
 
+  // Deserialization from JSON
   UserCard.fromJson(Map<String, dynamic> json)
       : nameOfShop = json['name'],
         cardNumber = json['number'];
 
+  // Serialization to JSON
   Map<String, dynamic> toJson() => {
     'name': nameOfShop,
     'number': cardNumber,
