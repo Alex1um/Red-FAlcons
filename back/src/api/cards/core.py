@@ -48,14 +48,18 @@ async def get_sorted_card_list(user_id: int, db: AsyncSession,
     cards_list = [key[0] for key in sorted(distance_map.items(), key = lambda elem: elem[1])]
     return cards_list
 
+
 async def find_nearest_shop(user_lat, user_lon, query) -> float:
     overpass = await Overpass()
-    shops = await overpass.query(query + '(around:1000,' + str(user_lat) + ',' + str(user_lon) + '); out body;')
+    shops = await overpass.query(
+        query + "(around:1000," + str(user_lat) + "," + str(user_lon) + "); out body;"
+    )
     min_dist = 1000
     for shop in shops:
         dist = await calculate_length(user_lat, user_lon, shop.lat(), shop.lon())
         min_dist = dist if dist < min_dist else min_dist
     return min_dist
+
 
 async def calculate_length(p1_x: float, p1_y: float, p2_x: float, p2_y: float) -> float:
     return (p1_x - p2_x) ** 2 + (p1_y - p2_y) ** 2
