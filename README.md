@@ -1,4 +1,8 @@
 # Quick wallet app
+
+# Backend
+Docs for backend stored in back/README.md
+
 # Frontend
 Frontend is written in [*Flutter*](https://flutter.dev/)!
 
