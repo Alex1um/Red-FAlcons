@@ -31,7 +31,7 @@ async def get_geo_cards_view(
 
 
 @cards_router.post(
-    "/",
+    "/new",
     summary="Create new card.",
     status_code=status.HTTP_201_CREATED,
     response_model=CardOut,
