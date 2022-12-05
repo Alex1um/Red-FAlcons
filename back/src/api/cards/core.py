@@ -4,7 +4,7 @@ from loguru import logger
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from ...external.db.models import Card
+from ...external.db.models import Card, Store
 from .schemas import CardIn
 
 
@@ -20,6 +20,15 @@ async def get_all_cards(
         result.append(row.tuple()[0])
     return result
 
+async def get_store_name(store_id: int, db: AsyncSession) -> str:
+    query = select(Store).where(Store.id == store_id)
+    query_result = await db.execute(query)
+    return query_result[0].name()
+
+async def get_store_query(store_id: int, db: AsyncSession) -> str:
+    query = select(Store).where(Store.id == store_id)
+    query_result = await db.execute(query)
+    return query_result[0].query()
 
 async def create_card(card: CardIn, user_id: int, db: AsyncSession) -> Card:
     """
