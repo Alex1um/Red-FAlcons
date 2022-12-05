@@ -20,15 +20,18 @@ async def get_all_cards(
         result.append(row.tuple()[0])
     return result
 
+
 async def get_store_name(store_id: int, db: AsyncSession) -> str:
     query = select(Store).where(Store.id == store_id)
     query_result = await db.execute(query)
-    return query_result[0].name()
+    return query_result.first().tuple()[0].name
+
 
 async def get_store_query(store_id: int, db: AsyncSession) -> str:
     query = select(Store).where(Store.id == store_id)
     query_result = await db.execute(query)
-    return query_result[0].query()
+    return query_result.first().tuple()[0].query
+
 
 async def create_card(card: CardIn, user_id: int, db: AsyncSession) -> Card:
     """
@@ -48,21 +51,32 @@ async def create_card(card: CardIn, user_id: int, db: AsyncSession) -> Card:
 
     return new_card
 
-async def get_sorted_card_list(user_id: int, db: AsyncSession,
-                               user_lat: float, user_lon: float):
-    cards = get_all_cards(user_id, db)
+
+async def get_sorted_card_list(
+    user_id: int, db: AsyncSession, user_lat: float, user_lon: float
+):
+    cards = await get_all_cards(user_id, db)
+    cards_map = {card.store_id: card for card in cards}
+
     distance_map = dict()
     for card in cards:
-        distance_map[card.store_name] = find_nearest_shop(user_lat, user_lon, card.query)
-    cards_list = [key[0] for key in sorted(distance_map.items(), key = lambda elem: elem[1])]
+        query = await get_store_query(card.store_id, db)
+        distance_map[card.store_id] = await find_nearest_shop(user_lat, user_lon, query)
+    logger.debug(f"{distance_map}")
+    cards_id_list = [
+        key[0] for key in sorted(distance_map.items(), key=lambda elem: elem[1])
+    ]
+    logger.debug(f"{cards_id_list}")
+
+    cards_list = [cards_map[id] for id in cards_id_list]
     return cards_list
 
 
 async def find_nearest_shop(user_lat, user_lon, query) -> float:
-    overpass = await Overpass()
-    shops = await overpass.query(
+    overpass = Overpass()
+    shops = overpass.query(
         query + "(around:1000," + str(user_lat) + "," + str(user_lon) + "); out body;"
-    )
+    ).elements()
     min_dist = 1000
     for shop in shops:
         dist = await calculate_length(user_lat, user_lon, shop.lat(), shop.lon())

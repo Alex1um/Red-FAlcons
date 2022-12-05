@@ -1,4 +1,4 @@
-async def find_shops(
+async def get_shops(
     latitude: float,
     longitude: float,
 ):
