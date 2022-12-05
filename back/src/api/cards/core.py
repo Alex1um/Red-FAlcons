@@ -42,6 +42,7 @@ async def create_card(card: CardIn, user_id: int, db: AsyncSession) -> Card:
 
 async def get_sorted_card_list(user_lat: float, user_lon: float):
     # get cards from db
+    cards = []
     distance_map = dict()
     for card in cards:
         distance_map[card.name] = find_nearest_shop(user_lat, user_lon, card.query)
