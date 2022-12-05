@@ -27,10 +27,12 @@ async def get_store_name(store_id: int, db: AsyncSession) -> str:
     return query_result.first().tuple()[0].name
 
 
+
 async def get_store_query(store_id: int, db: AsyncSession) -> str:
     query = select(Store).where(Store.id == store_id)
     query_result = await db.execute(query)
     return query_result.first().tuple()[0].query
+
 
 
 async def create_card(card: CardIn, user_id: int, db: AsyncSession) -> Card:
