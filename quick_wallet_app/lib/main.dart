@@ -111,6 +111,9 @@ class _HomePageState extends State<HomePage> {
       Iterable l = jsonDecode(cards);
       _cards = List<UserCard>.from(l.map((e) => UserCard.fromJson(e)));
     }
+    if (_cards.isEmpty) {
+      _cards.add(UserCard(nameOfShop: 'Add card', cardNumber: ''));
+    }
   }
 
   // Safe cards to local storage
