@@ -20,15 +20,18 @@ async def get_all_cards(
         result.append(row.tuple()[0])
     return result
 
+
 async def get_store_name(store_id: int, db: AsyncSession) -> str:
     query = select(Store).where(Store.id == store_id)
     query_result = await db.execute(query)
     return query_result[0].name()
 
+
 async def get_store_query(store_id: int, db: AsyncSession) -> str:
     query = select(Store).where(Store.id == store_id)
     query_result = await db.execute(query)
     return query_result[0].query()
+
 
 async def create_card(card: CardIn, user_id: int, db: AsyncSession) -> Card:
     """
@@ -48,20 +51,19 @@ async def create_card(card: CardIn, user_id: int, db: AsyncSession) -> Card:
 
     return new_card
 
-<<<<<<< HEAD
-async def get_sorted_card_list(user_id: int, db: AsyncSession,
-                               user_lat: float, user_lon: float):
-    cards = get_all_cards(user_id, db)
-=======
 
-async def get_sorted_card_list(user_lat: float, user_lon: float):
-    # get cards from db
-    cards = []
->>>>>>> 99bba867845473ca6425a5367e02b1c3a1f27ca1
+async def get_sorted_card_list(
+    user_id: int, db: AsyncSession, user_lat: float, user_lon: float
+):
+    cards = get_all_cards(user_id, db)
     distance_map = dict()
     for card in cards:
-        distance_map[card.store_name] = find_nearest_shop(user_lat, user_lon, card.query)
-    cards_list = [key[0] for key in sorted(distance_map.items(), key = lambda elem: elem[1])]
+        distance_map[card.store_name] = find_nearest_shop(
+            user_lat, user_lon, card.query
+        )
+    cards_list = [
+        key[0] for key in sorted(distance_map.items(), key=lambda elem: elem[1])
+    ]
     return cards_list
 
 
