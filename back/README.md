@@ -119,6 +119,14 @@ Headers:
 Authorization: <token_type> <access_token>
 ```
 
+Body:
+```
+    {
+        store_id: int,
+        code: int
+    }
+```
+
 Response:
 ```
     {   
@@ -127,4 +135,22 @@ Response:
         id: int,
         created_at: datetime
     }
+```
+
+### `GET /stores`:
+"Get all available stores."
+
+Headers:
+```
+Authorization: <token_type> <access_token>
+```
+
+Response:
+```
+    [
+        {   
+            id: int,
+            name: str
+        }
+    ]
 ```
