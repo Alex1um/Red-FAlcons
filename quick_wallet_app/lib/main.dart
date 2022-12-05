@@ -8,7 +8,8 @@ import 'card.dart';
 import 'dart:convert';
 import 'config.dart';
 import 'card_picker.dart';
-import 'package:barcode_widget/barcode_widget.dart';
+import 'package:barcode_widget/barcode_widget.dart' as BarcodeWidget;
+import 'package:mobile_scanner/mobile_scanner.dart';
 
 void main() {
   runApp(const QuickWalletApp());
@@ -199,12 +200,12 @@ class _HomePageState extends State<HomePage> {
                     context,
                     MaterialPageRoute(
                         builder: (context) => Container(
-                                color: Colors.white,
-                                child: Center(
-                                    child: BarcodeWidget(
-                              data: card.cardNumber,
-                              barcode: Barcode.ean13(),
-                              errorBuilder: (context, error) =>
+                            color: Colors.white,
+                            child: Center(
+                                child: BarcodeWidget.BarcodeWidget(
+                                  data: card.cardNumber,
+                                  barcode: BarcodeWidget.Barcode.ean13(),
+                                  errorBuilder: (context, error) =>
                                   Center(child: Text(error)),
                             )))));
               },
@@ -212,8 +213,12 @@ class _HomePageState extends State<HomePage> {
             ),
             // Add card tab
             Container(
-                // FlutterBarcodeScanner.scanBarcode("#ffffff", "Cancel", true, ScanMode.DEFAULT);
-                ),
+              child: MobileScanner(
+                onDetect: (barcode, args) {
+                  print(barcode);
+                },
+              ),
+            ),
           ]),
           // Debug button
           floatingActionButton: FloatingActionButton(
