@@ -45,7 +45,7 @@ async def get_sorted_card_list(user_id: int, db: AsyncSession,
     distance_map = dict()
     for card in cards:
         distance_map[card.store_name] = find_nearest_shop(user_lat, user_lon, card.query)
-    cards_list = {key for key in sorted(distance_map.items(), key = lambda elem: elem[1])}
+    cards_list = [key[0] for key in sorted(distance_map.items(), key = lambda elem: elem[1])]
     return cards_list
 
 async def find_nearest_shop(user_lat, user_lon, query) -> float:
@@ -58,4 +58,4 @@ async def find_nearest_shop(user_lat, user_lon, query) -> float:
     return min_dist
 
 async def calculate_length(p1_x: float, p1_y: float, p2_x: float, p2_y: float) -> float:
-    return math.sqrt((p1_x - p2_x) ** 2 + (p1_y - p2_y) ** 2)
+    return (p1_x - p2_x) ** 2 + (p1_y - p2_y) ** 2
