@@ -34,7 +34,6 @@ class _LoginState extends State<LoginView> {
           port: serverPort,
           timeoutSeconds: 2,
         );
-        print(res);
       } finally {
         _isSubmitting = false;
         ScaffoldMessenger.of(context).removeCurrentSnackBar();

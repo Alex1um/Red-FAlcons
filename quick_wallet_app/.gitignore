@@ -39,6 +39,6 @@ app.*.symbols
 app.*.map.json
 
 # Android Studio will place build artifacts here
-/android/app/debug
-/android/app/profile
-/android/app/release
+/quick_wallet_app/app/debug
+/quick_wallet_app/app/profile
+/quick_wallet_app/app/release
