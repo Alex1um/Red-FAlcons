@@ -154,3 +154,12 @@ Response:
         }
     ]
 ```
+
+## Manual QA
+
+Test cases: 10
+Successful: 10
+Failed: 0
+Seccess rate: 100%
+Fail rate: 0%
+Time: n/a
