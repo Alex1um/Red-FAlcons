@@ -1,4 +1,3 @@
-import math
 from OSMPythonTools.overpass import Overpass
 from loguru import logger
 from sqlalchemy import select
