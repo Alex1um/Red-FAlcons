@@ -1,4 +1,5 @@
 from sqlalchemy import Column, ForeignKey, Integer, String, text, TIMESTAMP
+from sqlalchemy.orm import relationship
 
 from .session import Base
 
@@ -28,6 +29,9 @@ class Card(Base):
     created_at = Column(
         TIMESTAMP(timezone=True), nullable=False, server_default=text("now()")
     )
+
+    owner = relationship("User", foreign_keys=[owner_id])
+    store = relationship("Store", foreign_keys=[store_id])
 
 
 class Store(Base):

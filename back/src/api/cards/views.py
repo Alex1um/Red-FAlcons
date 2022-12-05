@@ -20,14 +20,16 @@ async def get_all_cards_view(
 
 
 # For Josh Woods to change
-@cards_router.get("/geo", summary="Get cards sorted by geo.")
+@cards_router.get(
+    "/geo", summary="Get cards sorted by geo.", response_model=list[CardOut | None]
+)
 async def get_geo_cards_view(
     latitude: float,
     longitude: float,
     token_data: TokenData = Depends(get_current_user),
     db: AsyncSession = Depends(get_session),
 ):
-    return await get_sorted_card_list(latitude, longitude, db)
+    return await get_sorted_card_list(int(token_data.id), db, latitude, longitude)
 
 
 @cards_router.post(
