@@ -3,7 +3,7 @@ from pydantic import BaseModel
 
 
 class CardBase(BaseModel):
-    store_name: str
+    store_id: int
     code: int
 
 
