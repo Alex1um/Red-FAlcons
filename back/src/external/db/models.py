@@ -21,8 +21,18 @@ class Card(Base):
     owner_id = Column(
         Integer, ForeignKey("users.id", ondelete="CASCADE"), nullable=False
     )
-    store_name = Column(String, nullable=False)
+    store_id = Column(
+        Integer, ForeignKey("stores.id", ondelete="CASCADE"), nullable=False
+    )
     code = Column(Integer, nullable=False)
     created_at = Column(
         TIMESTAMP(timezone=True), nullable=False, server_default=text("now()")
     )
+
+
+class Store(Base):
+    __tablename__ = "stores"
+
+    id = Column(Integer, primary_key=True, nullable=False, autoincrement=True)
+    name = Column(String, nullable=False)
+    query = Column(String, nullable=False)
