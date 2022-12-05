@@ -4,3 +4,5 @@ venv
 
 .vscode
 .env
+
+cache
