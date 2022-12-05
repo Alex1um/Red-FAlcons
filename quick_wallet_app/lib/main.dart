@@ -8,6 +8,7 @@ import 'card.dart';
 import 'dart:convert';
 import 'config.dart';
 import 'card_picker.dart';
+import 'package:barcode_widget/barcode_widget.dart';
 
 void main() {
   runApp(const QuickWalletApp());
@@ -47,10 +48,13 @@ class HomePage extends StatefulWidget {
 class _HomePageState extends State<HomePage> {
   // Status of calculating geolocation
   bool _isGeolocationRunning = false;
+
   // List of all available cards.
   List<UserCard> _cards = [];
+
   // Token storage
   final FlutterSecureStorage _secureStorage = FlutterSecureStorage();
+
   // filtered list of cards
   List<UserCard>? _searched;
 
@@ -112,7 +116,7 @@ class _HomePageState extends State<HomePage> {
       _cards = List<UserCard>.from(l.map((e) => UserCard.fromJson(e)));
     }
     if (_cards.isEmpty) {
-      _cards.add(UserCard(nameOfShop: 'Add card', cardNumber: ''));
+      _cards.add(UserCard(nameOfShop: 'Add card', cardNumber: '9780141026626'));
     }
   }
 
@@ -167,7 +171,7 @@ class _HomePageState extends State<HomePage> {
                         } else {
                           _searched = _cards
                               .where((UserCard element) =>
-                          element.nameOfShop.contains(value))
+                                  element.nameOfShop.contains(value))
                               .toList();
                         }
                       });
@@ -190,19 +194,33 @@ class _HomePageState extends State<HomePage> {
                 print("new item: $card");
               },
               onSelectedTap: (card) {
-                print('old item: $card');
+                print(card.nameOfShop);
+                Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                        builder: (context) => Container(
+                                color: Colors.white,
+                                child: Center(
+                                    child: BarcodeWidget(
+                              data: card.cardNumber,
+                              barcode: Barcode.ean13(),
+                              errorBuilder: (context, error) =>
+                                  Center(child: Text(error)),
+                            )))));
               },
               showDivider: false,
             ),
             // Add card tab
-            Container(),
+            Container(
+                // FlutterBarcodeScanner.scanBarcode("#ffffff", "Cancel", true, ScanMode.DEFAULT);
+                ),
           ]),
           // Debug button
           floatingActionButton: FloatingActionButton(
             onPressed: () {
               setState(() {
                 _cards.add(const UserCard(
-                    nameOfShop: 'nameOfShop', cardNumber: 'cardNumber'));
+                    nameOfShop: 'nameOfShop', cardNumber: '1111111111111'));
               });
             },
             tooltip: 'Get geolocation',
