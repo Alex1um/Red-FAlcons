@@ -1,20 +1,17 @@
 import 'package:flutter/material.dart';
 import 'package:barcode_widget/barcode_widget.dart';
-import 'package:barcode_widget/barcode_widget.dart';
 import 'package:mobile_scanner/mobile_scanner.dart' show BarcodeFormat;
 import 'dart:convert';
 
 // Card sizes
 const cardHeight = 150.0;
 const cardWidth = 238.0;
+const defaultBarcodeType = BarcodeType.QrCode;
 
 // Card class
 class UserCard extends StatelessWidget {
   UserCard({Key? key, required this.nameOfShop, required this.cardNumber, this.barcodeType = BarcodeType.QrCode})
-      : super(key: key) {
-    // TODO: add Barcode type recognizer
-    barcodeType = BarcodeType.QrCode;
-  }
+      : super(key: key);
 
   UserCard.fromScan({Key? key, required this.nameOfShop, required this.cardNumber, required BarcodeFormat format})
       : super(key: key) {

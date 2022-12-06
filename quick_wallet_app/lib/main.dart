@@ -9,6 +9,7 @@ import 'dart:convert';
 import 'config.dart';
 import 'card_picker.dart';
 import 'package:mobile_scanner/mobile_scanner.dart';
+import 'card_adder.dart';
 
 void main() {
   runApp(const QuickWalletApp());
@@ -55,6 +56,8 @@ class _HomePageState extends State<HomePage> {
   // Token storage
   final FlutterSecureStorage _secureStorage = FlutterSecureStorage();
 
+  MobileScannerController _camController = MobileScannerController();
+
   // filtered list of cards
   List<UserCard>? _searched;
 
@@ -94,8 +97,8 @@ class _HomePageState extends State<HomePage> {
         LocationData location = await _determinePosition();
         var res = await Requests.get('$serverAddress/geo',
             queryParameters: {
-              'lat': location.latitude,
-              'long': location.longitude
+              'latitude': location.latitude,
+              'longitude': location.longitude
             },
             port: serverPort,
             timeoutSeconds: 5);
@@ -114,10 +117,6 @@ class _HomePageState extends State<HomePage> {
     if (cards != null) {
       Iterable l = jsonDecode(cards);
       _cards = List<UserCard>.from(l.map((e) => UserCard.fromJson(e)));
-    }
-    _cards.add(StubCard());
-    if (_cards.length > 1) {
-      _cards.insert(0, StubCard());
     }
   }
 
@@ -138,6 +137,10 @@ class _HomePageState extends State<HomePage> {
   // Render home page
   @override
   Widget build(BuildContext context) {
+    var card_list = <UserCard>[StubCard()] + _cards;
+    if (_cards.isNotEmpty) {
+      card_list += <UserCard>[StubCard()];
+    }
     return DefaultTabController(
         length: 3,
         initialIndex: 1,
@@ -152,72 +155,87 @@ class _HomePageState extends State<HomePage> {
             ),
           ),
           // tabs body
-          body: TabBarView(children: <Widget>[
-            // Search tab body
-            Column(children: [
-              // Grid
-              Expanded(
-                  child: GridView.count(
-                childAspectRatio: cardWidth / cardHeight,
-                crossAxisCount: 2,
-                children: _searched ?? _cards,
-              )),
-              // Search box
-              Padding(
-                  padding: const EdgeInsets.all(5.0),
-                  child: TextFormField(
-                    onChanged: (value) {
-                      setState(() {
-                        if (value.isEmpty) {
-                          _searched = null;
+          body: Builder(
+              builder: (context) => TabBarView(children: <Widget>[
+                    // Search tab body
+                    Column(children: [
+                      // Grid
+                      Expanded(
+                          child: GridView.count(
+                        childAspectRatio: cardWidth / cardHeight,
+                        crossAxisCount: 2,
+                        children: _searched ?? _cards,
+                      )),
+                      // Search box
+                      Padding(
+                          padding: const EdgeInsets.all(5.0),
+                          child: TextFormField(
+                            onChanged: (value) {
+                              setState(() {
+                                if (value.isEmpty) {
+                                  _searched = null;
+                                } else {
+                                  _searched = _cards
+                                      .where((UserCard element) =>
+                                          element.nameOfShop.contains(value))
+                                      .toList();
+                                }
+                              });
+                            },
+                            // controller: editingController,
+                            decoration: const InputDecoration(
+                                labelText: "Search",
+                                hintText: "Search",
+                                prefixIcon: Icon(Icons.search),
+                                border: OutlineInputBorder(
+                                    borderRadius: BorderRadius.all(
+                                        Radius.circular(25.0)))),
+                          ))
+                    ]),
+                    // Card Picker home page tab
+                    ScrollPicker(
+                      items: card_list,
+                      selectedItem: card_list[0],
+                      onSelectedTap: (card) {
+                        if (card.runtimeType == StubCard) {
+                          DefaultTabController.of(context)?.animateTo(2);
                         } else {
-                          _searched = _cards
-                              .where((UserCard element) =>
-                                  element.nameOfShop.contains(value))
-                              .toList();
+                          card.showBarcode(context);
                         }
-                      });
-                    },
-                    // controller: editingController,
-                    decoration: const InputDecoration(
-                        labelText: "Search",
-                        hintText: "Search",
-                        prefixIcon: Icon(Icons.search),
-                        border: OutlineInputBorder(
-                            borderRadius:
-                                BorderRadius.all(Radius.circular(25.0)))),
-                  ))
-            ]),
-            // Card Picker home page tab
-            ScrollPicker(
-              items: _cards,
-              selectedItem: _cards[0],
-              onSelectedTap: (card) {
-                if (card.runtimeType == StubCard) {
-                  DefaultTabController.of(context)?.animateTo(3);
-                } else {
-                  card.showBarcode(context);
-                }
-              },
-              showDivider: false,
-            ),
-            // Add card tab
-            Container(
-              child: MobileScanner(
-                onDetect: (barcode, args) {
-                  print(barcode);
-                  print(barcode.type);
-                  print(barcode.format);
-                  print(barcode.format.toString());
-                },
-              ),
-            ),
-          ]),
+                      },
+                      showDivider: false,
+                    ),
+                    // Add card tab
+                    Container(
+                      child: MobileScanner(
+                        controller: _camController,
+                        onDetect: (barcode, args) {
+                          // _camController.stop();
+                          Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                  builder: (context) => CardAdder(
+                                        cardNumber: barcode.rawValue,
+                                        barcodeType:
+                                            UserCard.convertBarcodeFormat(
+                                                barcode.format),
+                                      ))).then((value) {
+                            // _camController.start();
+                            // print('---- $value');
+                            setState(() {
+                              _cards.add(value);
+                            });
+                          });
+                        },
+                      ),
+                    ),
+                  ])),
           // Debug button
           floatingActionButton: FloatingActionButton(
             onPressed: () {
               setState(() {
-                _cards.add(UserCard(nameOfShop: 'New card', cardNumber: '9780141026626'));
+                _cards.add(UserCard(
+                    nameOfShop: 'New card', cardNumber: '9780141026626'));
               });
             },
             tooltip: 'Get geolocation',
@@ -227,6 +245,11 @@ class _HomePageState extends State<HomePage> {
               FloatingActionButtonLocation.centerFloat,
           // Bottom navigation bar
           bottomNavigationBar: TabBar(
+            onTap: (value) {
+              if (value == 2) {
+                // _camController.start();
+              }
+            },
             tabs: const [
               Tab(icon: Icon(Icons.search), text: 'Search'),
               Tab(icon: Icon(Icons.filter_list), text: 'Suggested'),
