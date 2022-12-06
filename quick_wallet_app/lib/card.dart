@@ -135,9 +135,4 @@ class UserCard extends StatelessWidget {
 
 class StubCard extends UserCard {
   StubCard({super.nameOfShop = 'Add Card', super.cardNumber = ''});
-
-  @override
-  void showBarcode(BuildContext context) {
-  }
-
 }

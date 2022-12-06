@@ -115,8 +115,9 @@ class _HomePageState extends State<HomePage> {
       Iterable l = jsonDecode(cards);
       _cards = List<UserCard>.from(l.map((e) => UserCard.fromJson(e)));
     }
-    if (_cards.isEmpty) {
-      _cards.add(UserCard(nameOfShop: 'Add card', cardNumber: '9780141026626'));
+    _cards.add(StubCard());
+    if (_cards.length > 1) {
+      _cards.insert(0, StubCard());
     }
   }
 
@@ -129,6 +130,7 @@ class _HomePageState extends State<HomePage> {
   // on app init
   @override
   void initState() {
+    super.initState();
     _loadCards();
     _processGeolocation();
   }
@@ -191,7 +193,11 @@ class _HomePageState extends State<HomePage> {
               items: _cards,
               selectedItem: _cards[0],
               onSelectedTap: (card) {
-                card.showBarcode(context);
+                if (card.runtimeType == StubCard) {
+                  DefaultTabController.of(context)?.animateTo(3);
+                } else {
+                  card.showBarcode(context);
+                }
               },
               showDivider: false,
             ),
@@ -211,8 +217,7 @@ class _HomePageState extends State<HomePage> {
           floatingActionButton: FloatingActionButton(
             onPressed: () {
               setState(() {
-                _cards.add(UserCard(
-                    nameOfShop: 'nameOfShop', cardNumber: '1111111111111'));
+                _cards.add(UserCard(nameOfShop: 'New card', cardNumber: '9780141026626'));
               });
             },
             tooltip: 'Get geolocation',
