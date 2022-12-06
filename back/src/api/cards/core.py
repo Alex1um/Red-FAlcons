@@ -1,3 +1,4 @@
+import math
 from OSMPythonTools.overpass import Overpass
 from loguru import logger
 from sqlalchemy import select
@@ -78,12 +79,21 @@ async def find_nearest_shop(user_lat, user_lon, query) -> float:
     shops = overpass.query(
         query + "(around:1000," + str(user_lat) + "," + str(user_lon) + "); out body;"
     ).elements()
-    min_dist = 1000
+    min_dist = 1000000
     for shop in shops:
         dist = await calculate_length(user_lat, user_lon, shop.lat(), shop.lon())
         min_dist = dist if dist < min_dist else min_dist
     return min_dist
 
 
-async def calculate_length(p1_x: float, p1_y: float, p2_x: float, p2_y: float) -> float:
-    return (p1_x - p2_x) ** 2 + (p1_y - p2_y) ** 2
+async def calculate_length(lat1: float, lon1: float, lat2: float, lon2: float) -> float:
+    R = 6372795
+    delta = abs(lat1 - lat2)
+    num = (math.cos(lat2) * math.sin(delta)) ** 2 + \
+        (math.cos(lat1) * math.sin(lat2) - \
+         math.sin(lat1) * math.cos(lat2) * math.cos(delta)) ** 2
+    num = math.sqrt(num)
+    denom = math.sin(lat1) * math.sin(lat2) + \
+            math.cos(lat1) * math.cos(lat2) * math.cos(delta)
+    arctg = math.atan2(num, denom)
+    return R * arctg
