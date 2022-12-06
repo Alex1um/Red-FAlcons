@@ -6,6 +6,8 @@ Docs for backend stored in [back/README.md](back/README.md)
 # Frontend
 Frontend is written in [*Flutter*](https://flutter.dev/)!
 
+The compiled *.apk* of this branch can be downloaded from the [link](https://drive.google.com/uc?id=1xDs9amIuW812AWXMFLDk0J7coWkN7_NM&export=download) 
+
 The source code of the Android application is located in the "[quick_wallet_app](quick_wallet_app)" folder in the root of the project.
 
 The flutter app source code is located in the "[lib](quick_wallet_app/lib)" folder.
