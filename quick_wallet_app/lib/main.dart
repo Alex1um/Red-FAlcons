@@ -57,6 +57,7 @@ class _HomePageState extends State<HomePage> {
   final FlutterSecureStorage _secureStorage = FlutterSecureStorage();
 
   MobileScannerController _camController = MobileScannerController();
+  bool _isAddingCard = false;
 
   // filtered list of cards
   List<UserCard>? _searched;
@@ -208,24 +209,25 @@ class _HomePageState extends State<HomePage> {
                     // Add card tab
                     Container(
                       child: MobileScanner(
-                        controller: _camController,
                         onDetect: (barcode, args) {
-                          // _camController.stop();
-                          Navigator.push(
-                              context,
-                              MaterialPageRoute(
-                                  builder: (context) => CardAdder(
-                                        cardNumber: barcode.rawValue,
-                                        barcodeType:
-                                            UserCard.convertBarcodeFormat(
-                                                barcode.format),
-                                      ))).then((value) {
-                            // _camController.start();
-                            // print('---- $value');
-                            setState(() {
-                              _cards.add(value);
+                          if (!_isAddingCard) {
+                            _isAddingCard = true;
+                            Navigator.push(
+                                context,
+                                MaterialPageRoute(
+                                    builder: (context) =>
+                                        CardAdder(
+                                          cardNumber: barcode.rawValue,
+                                          barcodeType:
+                                          UserCard.convertBarcodeFormat(
+                                              barcode.format),
+                                        ))).then((value) {
+                              _isAddingCard = false;
+                              setState(() {
+                                _cards.add(value);
+                              });
                             });
-                          });
+                          }
                         },
                       ),
                     ),
@@ -245,11 +247,6 @@ class _HomePageState extends State<HomePage> {
               FloatingActionButtonLocation.centerFloat,
           // Bottom navigation bar
           bottomNavigationBar: TabBar(
-            onTap: (value) {
-              if (value == 2) {
-                // _camController.start();
-              }
-            },
             tabs: const [
               Tab(icon: Icon(Icons.search), text: 'Search'),
               Tab(icon: Icon(Icons.filter_list), text: 'Suggested'),
