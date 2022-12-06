@@ -4,7 +4,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from ...external.db.models import Store
 
 
-async def get_shops(db: AsyncSession):
+async def get_shops(db: AsyncSession) -> list[Store]:
     query = select(Store)
     query_result = await db.execute(query)
     result = []
