@@ -7,13 +7,13 @@ class ScrollPicker<T extends Widget> extends StatefulWidget {
     Key? key,
     required this.items,
     required this.selectedItem,
-    required this.onChanged,
     required this.onSelectedTap,
-    this.showDivider: true,
+    this.showDivider: false,
+    this.onChanged,
   }) : super(key: key);
 
   // Events
-  final ValueChanged<T> onChanged;
+  final ValueChanged<T>? onChanged;
   final void Function(T) onSelectedTap;
 
   // Variables
@@ -91,7 +91,7 @@ class _ScrollPickerState<T extends Widget> extends State<ScrollPicker<T>> {
             // Center(child: widget.showDivider ? Divider() : Container()),
             // GestureDetector(onTap: () => widget.onSelectedTap(widget.selectedItem), child: Divider(),),
             GestureDetector(
-                onTap: () => widget.onSelectedTap(widget.selectedItem),
+                onTap: () => widget.onSelectedTap(selectedValue),
                 child: Center(
                     child: Container(
                   height: itemHeight,
@@ -127,7 +127,9 @@ class _ScrollPickerState<T extends Widget> extends State<ScrollPicker<T>> {
     T newValue = widget.items[index];
     if (newValue != selectedValue) {
       selectedValue = newValue;
-      widget.onChanged(newValue);
+      if (widget.onChanged != null) {
+        widget.onChanged!(newValue);
+      }
     } else {
       widget.onSelectedTap(newValue);
     }

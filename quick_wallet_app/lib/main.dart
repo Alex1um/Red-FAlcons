@@ -8,7 +8,6 @@ import 'card.dart';
 import 'dart:convert';
 import 'config.dart';
 import 'card_picker.dart';
-import 'package:barcode_widget/barcode_widget.dart' as BarcodeWidget;
 import 'package:mobile_scanner/mobile_scanner.dart';
 
 void main() {
@@ -191,23 +190,8 @@ class _HomePageState extends State<HomePage> {
             ScrollPicker(
               items: _cards,
               selectedItem: _cards[0],
-              onChanged: (card) {
-                print("new item: $card");
-              },
               onSelectedTap: (card) {
-                print(card.nameOfShop);
-                Navigator.push(
-                    context,
-                    MaterialPageRoute(
-                        builder: (context) => Container(
-                            color: Colors.white,
-                            child: Center(
-                                child: BarcodeWidget.BarcodeWidget(
-                                  data: card.cardNumber,
-                                  barcode: BarcodeWidget.Barcode.ean13(),
-                                  errorBuilder: (context, error) =>
-                                  Center(child: Text(error)),
-                            )))));
+                card.showBarcode(context);
               },
               showDivider: false,
             ),
@@ -216,6 +200,9 @@ class _HomePageState extends State<HomePage> {
               child: MobileScanner(
                 onDetect: (barcode, args) {
                   print(barcode);
+                  print(barcode.type);
+                  print(barcode.format);
+                  print(barcode.format.toString());
                 },
               ),
             ),
@@ -224,7 +211,7 @@ class _HomePageState extends State<HomePage> {
           floatingActionButton: FloatingActionButton(
             onPressed: () {
               setState(() {
-                _cards.add(const UserCard(
+                _cards.add(UserCard(
                     nameOfShop: 'nameOfShop', cardNumber: '1111111111111'));
               });
             },
