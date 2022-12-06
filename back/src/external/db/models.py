@@ -40,3 +40,4 @@ class Store(Base):
     id = Column(Integer, primary_key=True, nullable=False, autoincrement=True)
     name = Column(String, nullable=False)
     query = Column(String, nullable=False)
+    default_code_type = Column(Integer, nullable=False)
