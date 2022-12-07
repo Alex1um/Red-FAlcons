@@ -119,6 +119,14 @@ Headers:
 Authorization: <token_type> <access_token>
 ```
 
+Body:
+```
+    {
+        store_id: int,
+        code: int
+    }
+```
+
 Response:
 ```
     {   
@@ -128,3 +136,30 @@ Response:
         created_at: datetime
     }
 ```
+
+### `GET /stores`:
+"Get all available stores."
+
+Headers:
+```
+Authorization: <token_type> <access_token>
+```
+
+Response:
+```
+    [
+        {   
+            id: int,
+            name: str
+        }
+    ]
+```
+
+## Manual QA
+
+Test cases: 10
+Successful: 10
+Failed: 0
+Seccess rate: 100%
+Fail rate: 0%
+Time: n/a

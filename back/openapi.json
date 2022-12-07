@@ -240,7 +240,13 @@
                         "description": "Successful Response",
                         "content": {
                             "application/json": {
-                                "schema": {}
+                                "schema": {
+                                    "title": "Response Get Geo Cards View Cards Geo Get",
+                                    "type": "array",
+                                    "items": {
+                                        "$ref": "#/components/schemas/CardOut"
+                                    }
+                                }
                             }
                         }
                     },
@@ -262,53 +268,34 @@
                 ]
             }
         },
-        "/shops": {
+        "/stores": {
             "get": {
                 "tags": [
-                    "shops"
+                    "stores"
                 ],
                 "summary": "Get closest shops.",
-                "operationId": "find_shops_view_shops_get",
-                "parameters": [
-                    {
-                        "required": true,
-                        "schema": {
-                            "title": "Latitude",
-                            "type": "number"
-                        },
-                        "name": "latitude",
-                        "in": "query"
-                    },
-                    {
-                        "required": true,
-                        "schema": {
-                            "title": "Longitude",
-                            "type": "number"
-                        },
-                        "name": "longitude",
-                        "in": "query"
-                    }
-                ],
+                "operationId": "find_shops_view_stores_get",
                 "responses": {
                     "200": {
                         "description": "Successful Response",
                         "content": {
                             "application/json": {
-                                "schema": {}
-                            }
-                        }
-                    },
-                    "422": {
-                        "description": "Validation Error",
-                        "content": {
-                            "application/json": {
                                 "schema": {
-                                    "$ref": "#/components/schemas/HTTPValidationError"
+                                    "title": "Response Find Shops View Stores Get",
+                                    "type": "array",
+                                    "items": {
+                                        "$ref": "#/components/schemas/StoreOut"
+                                    }
                                 }
                             }
                         }
                     }
-                }
+                },
+                "security": [
+                    {
+                        "OAuth2PasswordBearer": []
+                    }
+                ]
             }
         }
     },
@@ -353,14 +340,14 @@
             "CardIn": {
                 "title": "CardIn",
                 "required": [
-                    "store_name",
+                    "store_id",
                     "code"
                 ],
                 "type": "object",
                 "properties": {
-                    "store_name": {
-                        "title": "Store Name",
-                        "type": "string"
+                    "store_id": {
+                        "title": "Store Id",
+                        "type": "integer"
                     },
                     "code": {
                         "title": "Code",
@@ -371,16 +358,16 @@
             "CardOut": {
                 "title": "CardOut",
                 "required": [
-                    "store_name",
+                    "store_id",
                     "code",
                     "id",
                     "created_at"
                 ],
                 "type": "object",
                 "properties": {
-                    "store_name": {
-                        "title": "Store Name",
-                        "type": "string"
+                    "store_id": {
+                        "title": "Store Id",
+                        "type": "integer"
                     },
                     "code": {
                         "title": "Code",
@@ -407,6 +394,24 @@
                         "items": {
                             "$ref": "#/components/schemas/ValidationError"
                         }
+                    }
+                }
+            },
+            "StoreOut": {
+                "title": "StoreOut",
+                "required": [
+                    "id",
+                    "name"
+                ],
+                "type": "object",
+                "properties": {
+                    "id": {
+                        "title": "Id",
+                        "type": "integer"
+                    },
+                    "name": {
+                        "title": "Name",
+                        "type": "string"
                     }
                 }
             },
