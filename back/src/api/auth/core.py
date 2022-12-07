@@ -22,7 +22,7 @@ async def create_user(user: UserIn, db: AsyncSession) -> User:
     old_user = res.scalars().first()
 
     if old_user is not None:
-        logger.info(f"User with email {user.username} already exists.")
+        logger.info(f"User {user.username} already exists.")
         raise HTTPException(
             status_code=status.HTTP_422_UNPROCESSABLE_ENTITY,
             detail="Username is already taken",
