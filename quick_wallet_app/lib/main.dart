@@ -2,14 +2,12 @@ import 'login.dart';
 import 'package:flutter/material.dart';
 import 'package:requests/requests.dart';
 import 'package:location/location.dart';
-import 'package:flutter_secure_storage/flutter_secure_storage.dart';
-import 'package:shared_preferences/shared_preferences.dart';
 import 'card.dart';
-import 'dart:convert';
 import 'config.dart';
 import 'card_picker.dart';
 import 'package:mobile_scanner/mobile_scanner.dart';
 import 'card_adder.dart';
+import 'user_session.dart';
 
 void main() {
   runApp(const QuickWalletApp());
@@ -51,16 +49,18 @@ class _HomePageState extends State<HomePage> {
   bool _isGeolocationRunning = false;
 
   // List of all available cards.
-  List<UserCard> _cards = [];
+  // List<UserCard> _cards = [];
 
   // Token storage
-  final FlutterSecureStorage _secureStorage = FlutterSecureStorage();
+  // final FlutterSecureStorage _secureStorage = FlutterSecureStorage();
 
   MobileScannerController _camController = MobileScannerController();
   bool _isAddingCard = false;
 
   // filtered list of cards
   List<UserCard>? _searched;
+
+  late UserSession _session;
 
   // Enable needed services and get geolocation
   Future<LocationData> _determinePosition() async {
@@ -111,35 +111,21 @@ class _HomePageState extends State<HomePage> {
     }
   }
 
-  // Load cards from local storage
-  void _loadCards() async {
-    var prefs = await SharedPreferences.getInstance();
-    var cards = prefs.getString('cards');
-    if (cards != null) {
-      Iterable l = jsonDecode(cards);
-      _cards = List<UserCard>.from(l.map((e) => UserCard.fromJson(e)));
-    }
-  }
-
-  // Safe cards to local storage
-  void _dumpCards() async {
-    var prefs = await SharedPreferences.getInstance();
-    prefs.setString('cards', jsonEncode(_cards));
-  }
-
   // on app init
   @override
   void initState() {
     super.initState();
-    _loadCards();
+    _session = UserSession();
+    _session.init();
+
     _processGeolocation();
   }
 
   // Render home page
   @override
   Widget build(BuildContext context) {
-    var card_list = <UserCard>[StubCard()] + _cards;
-    if (_cards.isNotEmpty) {
+    var card_list = <UserCard>[StubCard()] + _session.cards;
+    if (_session.cards.isNotEmpty) {
       card_list += <UserCard>[StubCard()];
     }
     return DefaultTabController(
@@ -152,7 +138,7 @@ class _HomePageState extends State<HomePage> {
             leading: IconButton(
               icon: const Icon(Icons.account_circle),
               onPressed: () => Navigator.push(context,
-                  MaterialPageRoute(builder: (context) => LoginView())),
+                  MaterialPageRoute(builder: (context) => LoginView(session: _session))),
             ),
           ),
           // tabs body
@@ -165,7 +151,7 @@ class _HomePageState extends State<HomePage> {
                           child: GridView.count(
                         childAspectRatio: cardWidth / cardHeight,
                         crossAxisCount: 2,
-                        children: _searched ?? _cards,
+                        children: _searched ?? _session.cards,
                       )),
                       // Search box
                       Padding(
@@ -176,7 +162,7 @@ class _HomePageState extends State<HomePage> {
                                 if (value.isEmpty) {
                                   _searched = null;
                                 } else {
-                                  _searched = _cards
+                                  _searched = _session.cards
                                       .where((UserCard element) =>
                                           element.nameOfShop.contains(value))
                                       .toList();
@@ -210,8 +196,9 @@ class _HomePageState extends State<HomePage> {
                     Container(
                       child: MobileScanner(
                         onDetect: (barcode, args) {
-                          if (!_isAddingCard) {
-                            _isAddingCard = true;
+                          // if (!_isAddingCard) {
+                            // _isAddingCard = true;
+                            // deactivate();
                             Navigator.push(
                                 context,
                                 MaterialPageRoute(
@@ -223,11 +210,12 @@ class _HomePageState extends State<HomePage> {
                                               barcode.format),
                                         ))).then((value) {
                               _isAddingCard = false;
+                              // activate();
                               setState(() {
-                                _cards.add(value);
+                                _session.addCard(value);
                               });
                             });
-                          }
+                          // }
                         },
                       ),
                     ),
@@ -236,7 +224,7 @@ class _HomePageState extends State<HomePage> {
           floatingActionButton: FloatingActionButton(
             onPressed: () {
               setState(() {
-                _cards.add(UserCard(
+                _session.addCard(UserCard(
                     nameOfShop: 'New card', cardNumber: '9780141026626'));
               });
             },

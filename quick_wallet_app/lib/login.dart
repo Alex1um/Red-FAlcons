@@ -1,29 +1,41 @@
-import 'dart:convert';
-
 import 'package:flutter/material.dart';
-import 'package:requests/requests.dart';
-import 'config.dart';
+import 'package:quick_wallet_app/user_session.dart';
+
 
 // Login page Widget
 class LoginView extends StatefulWidget {
-  const LoginView({super.key});
+  LoginView({super.key, required this.session});
+
+  UserSession session;
 
   @override
-  State<StatefulWidget> createState() => _LoginState();
+  State<StatefulWidget> createState() {
+    // if (session.is_signed()) {
+    //
+    // } else {
+    return _LoginState();
+    // }
+  }
 }
 
 class _LoginState extends State<LoginView> {
   final GlobalKey<FormState> _formKey = GlobalKey<FormState>();
+
   // Is showing pass?
   bool _showPass = false;
+
   // Showing error below email field
   String? _emailError;
+
   // Showing error below password field
   String? _passError;
+
   // Email field value
   String _email = '';
+
   // Password field value
   String _password = '';
+
   // Is future running?
   bool _isSubmitting = false;
 
@@ -31,26 +43,54 @@ class _LoginState extends State<LoginView> {
   void _onSubmit() async {
     if (!_isSubmitting && _formKey.currentState!.validate()) {
       _isSubmitting = true;
-      var bar = ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Processing Data')),
-      );
       _formKey.currentState!.save();
-      var creds = {'login': _email, 'password': _password};
       try {
-        var res = await Requests.get('$serverAddress/login',
-          json: creds,
-          port: serverPort,
-          timeoutSeconds: 2,
-        );
-      } finally {
-        _isSubmitting = false;
-        ScaffoldMessenger.of(context).removeCurrentSnackBar();
+        await widget.session.onlineSession
+            .login(login: _email, password: _password);
+      } catch (e) {
+        print("Error: $e");
+        if (e.runtimeType == AuthError) {
+          var auth_error = e as AuthError;
+          _emailError = auth_error.loginMsg;
+          _passError = auth_error.passMsg;
+        }
       }
+      finally {
+        _isSubmitting = false;
+        setState(() {
+
+        });
+      }
+
+      // var bar = ScaffoldMessenger.of(context).showSnackBar(
+      //   const SnackBar(content: Text('Processing Data')),
+      // );
+      // _formKey.currentState!.save();
     }
   }
 
   @override
   Widget build(BuildContext context) {
+    if (widget.session.onlineSession.isLoggedIn()) {
+      return Scaffold(
+        appBar: AppBar(
+          leading: IconButton(
+            icon: Icon(Icons.arrow_back),
+            onPressed: () => Navigator.pop(context),
+          ),
+        ),
+        body: Column(
+          children: [
+            Text('Logged In'),
+            ElevatedButton(onPressed: () {
+              setState(() {
+                widget.session.onlineSession.signOut();
+              });
+            }, child: Text("Log out"))
+          ],
+        ),
+      );
+    }
     return Scaffold(
       appBar: AppBar(
         leading: IconButton(
@@ -91,8 +131,7 @@ class _LoginState extends State<LoginView> {
               CheckboxListTile(
                 title: const Text('Show password'),
                 value: _showPass,
-                onChanged: (value) =>
-                {
+                onChanged: (value) => {
                   setState(() {
                     // if (value != null) {
                     _showPass = value!;
