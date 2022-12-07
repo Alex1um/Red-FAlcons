@@ -86,9 +86,14 @@ async def find_nearest_shop(user_lat, user_lon, query) -> float:
     return min_dist
 
 
-async def calculate_length(lat1: float, lon1: float, lat2: float, lon2: float) -> float:
+async def calculate_length(_lat1: float, _lon1: float, _lat2: float, _lon2: float) -> float:
     R = 6372795
-    delta = abs(lat1 - lat2)
+    lat1 = _lat1 * math.pi / 180.
+    lat2 = _lat2 * math.pi / 180.
+    lon1 = _lon1 * math.pi / 180.
+    lon2 = _lon2 * math.pi / 180.
+
+    delta = abs(lon1 - lon2)
     num = (math.cos(lat2) * math.sin(delta)) ** 2 + \
         (math.cos(lat1) * math.sin(lat2) - \
          math.sin(lat1) * math.cos(lat2) * math.cos(delta)) ** 2

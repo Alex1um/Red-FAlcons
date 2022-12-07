@@ -48,24 +48,6 @@ async def drop_tables():
     async with engine.begin() as conn:
         await conn.run_sync(Base.metadata.drop_all)
 
-async def init_all():
-    await drop_tables()
-    await init_tables()
-    user = User()
-    user.id = 123
-    user.username = "UserName"
-    user.password = "password123"
-    db_gen = get_test_session()
-    db = await db_gen.__anext__()
-    db.add(user)
-    store = Store()
-    store.id = 1
-    store.name = "storeName"
-    store.query = 'node["shop"="supermarket"]'
-    db.add(store)
-    await db.commit()
-
-
 @pytest.fixture
 async def init_db():
     await drop_tables()
