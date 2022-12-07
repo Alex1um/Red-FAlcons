@@ -1,11 +1,7 @@
-from fastapi import Depends
 from OSMPythonTools.overpass import Overpass
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.ext.asyncio import create_async_engine
 from sqlalchemy.orm import sessionmaker
-import asyncio
-
-from sqlalchemy import select
 
 import pytest
 from fastapi.testclient import TestClient
