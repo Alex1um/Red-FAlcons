@@ -18,8 +18,6 @@ async def get_all_cards_view(
 ):
     return await get_all_cards(int(token_data.id), db)
 
-
-# For Josh Woods to change
 @cards_router.get(
     "/geo", summary="Get cards sorted by geo.", response_model=list[CardOut | None]
 )
@@ -33,7 +31,7 @@ async def get_geo_cards_view(
 
 
 @cards_router.post(
-    "/new",
+    "/",
     summary="Create new card.",
     status_code=status.HTTP_201_CREATED,
     response_model=CardOut,
