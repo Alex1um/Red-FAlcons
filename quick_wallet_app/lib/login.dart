@@ -86,7 +86,8 @@ class _LoginState extends State<LoginView> {
               setState(() {
                 widget.session.onlineSession.signOut();
               });
-            }, child: Text("Log out"))
+            }, child: Text("Log out")),
+            ElevatedButton(onPressed: widget.session.save, child: Text("Sync"))
           ],
         ),
       );

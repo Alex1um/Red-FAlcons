@@ -18,6 +18,7 @@ class UserCard extends StatelessWidget {
     barcodeType = convertBarcodeFormat(format);
   }
 
+  // final int storeID;
   final String nameOfShop;
   final String cardNumber;
   late BarcodeType barcodeType;
@@ -120,7 +121,7 @@ class UserCard extends StatelessWidget {
   UserCard.fromJson(Map<String, dynamic> json)
       : nameOfShop = json['name'],
         cardNumber = json['number'],
-        barcodeType = json['barcode'] as BarcodeType;
+        barcodeType = BarcodeType.values[json['barcode']];
 
   // Serialization to JSON
   Map<String, dynamic> toJson() => {

@@ -5,6 +5,7 @@ import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:requests/requests.dart';
 import 'config.dart';
 import 'package:dart_jsonwebtoken/dart_jsonwebtoken.dart';
+import 'shops.dart';
 
 class AuthError implements Exception {
   String? loginMsg;
@@ -15,6 +16,7 @@ class AuthError implements Exception {
 class UserSession {
 
   List<UserCard> cards = [];
+  List<Shop> shops = [];
 
   UserSession();
   OnlineSession onlineSession = OnlineSession();
@@ -26,6 +28,12 @@ class UserSession {
       Iterable l = jsonDecode(cards);
       this.cards = List<UserCard>.from(l.map((e) => UserCard.fromJson(e)));
     }
+    var shops = prefs.getString('shops');
+    if (shops != null) {
+      Iterable l = jsonDecode(shops);
+      this.shops = List<Shop>.from(l.map((e) => Shop.fromJson(e)));
+    }
+
     try {
       await onlineSession.load();
     }
@@ -39,14 +47,17 @@ class UserSession {
     if (onlineSession.isLoggedIn()) {
       var res = await Requests.get('$serverAddress/stores',
       headers: {'Authorization': '${onlineSession.token_type} ${onlineSession.token}'});
-      print('--------------');
-      print(res.body);
+      if (res.success) {
+        Iterable l = jsonDecode(res.body);
+        this.shops = List<Shop>.from(l.map((e) => Shop.fromJson(e)));
+      }
     }
   }
 
   save() async {
     var prefs = await SharedPreferences.getInstance();
-    return prefs.setString('cards', jsonEncode(cards));
+    await prefs.setString('cards', jsonEncode(cards));
+    await prefs.setString('shops', jsonEncode(shops));
   }
 
   addCard(UserCard newCard) {
