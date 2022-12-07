@@ -12,11 +12,13 @@ from . import schemas
 from .utils import hash_password, verify
 from sqlalchemy import select
 
+import requests
+
 DATABASE_URL = (
     f"postgresql+asyncpg://{settings.postgres_user}:"
     f"{settings.postgres_password}"
     f"@{settings.postgres_host}:"
-    f"{settings.postgres_port}/{settings.postgres_database_name}_test"
+    f"{settings.postgres_port}/{settings.postgres_database_name}" #_test
 )
 
 engine = create_async_engine(DATABASE_URL, echo=True)
@@ -35,7 +37,7 @@ async def get_test_session() -> AsyncSession:
 
 app.dependency_overrides[get_session] = get_test_session
 
-@pytest.fixture
+
 async def init_tables():
     async with engine.begin() as conn:
         await conn.run_sync(Base.metadata.drop_all)
@@ -45,11 +47,13 @@ async def init_tables():
 # def client():
 #     yield TestClient(app)
 
-test_app = TestClient(app)
+# test_app = TestClient(app)
+
+app_address = "http://127.0.0.1:3000"
 
 @pytest.mark.asyncio
 async def test_create_user():
-    res = test_app.post("/auth/register",
+    res = requests.post(app_address + "/auth/register",
         json={"username": "userName", "password": "password123"})
     print(res.json())
     assert res.status_code == 201
@@ -58,8 +62,49 @@ async def test_create_user():
     assert new_user.username == "userName"
     db_gen = get_test_session()
     db = await db_gen.__anext__()
-    query = select(User).where(User.username == user.username)
+    query = select(User).where(User.username == new_user.username)
     res = await db.execute(query)
     user = res.scalars().first()
-    assert user.password == hash_password("password123")
-    
+    assert verify("password123", user.password)
+
+@pytest.mark.asyncio
+async def test_create_user_duplicate():
+    duplicate_attempt = requests.post(app_address + "/auth/register",
+        json={"username": "userName", "password": "password123"})
+    assert duplicate_attempt.status_code == 422
+    assert duplicate_attempt.json().get("detail") == "Username is already taken"
+
+@pytest.mark.asyncio
+async def test_login():
+    files = {'username': (None, 'userName'),
+             'password': (None, 'password123')}
+    res = requests.post(app_address + "/auth/login", files = files)
+    print(res.json())
+    assert res.status_code == 200
+    assert res.json().get("access_token") != ""
+
+
+@pytest.mark.asyncio
+async def test_login_wrong_username():
+    files = {'username': (None, 'qwe'),
+             'password': (None, 'password123')}
+    res = requests.post(app_address + "/auth/login", files = files)
+    print(res.json())
+    assert res.status_code == 403
+
+@pytest.mark.asyncio
+async def test_login_wrong_password():
+    files = {'username': (None, 'qwe'),
+             'password': (None, 'password321')}
+    res = requests.post(app_address + "/auth/login", files = files)
+    print(res.json())
+    assert res.status_code == 403
+
+@pytest.mark.asyncio
+async def test_get_user():
+    files = {'username': (None, 'qwe'),
+             'password': (None, 'password321')}
+    res = requests.post(app_address + "/auth/login", files = files)
+    print(res.json())
+    assert res.status_code == 403
+
