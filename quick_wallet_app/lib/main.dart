@@ -96,13 +96,12 @@ class _HomePageState extends State<HomePage> {
           _isGeolocationRunning = true;
         });
         LocationData location = await _determinePosition();
-        var res = await Requests.get('$serverAddress/geo',
-            queryParameters: {
-              'latitude': location.latitude,
-              'longitude': location.longitude
-            },
-            port: serverPort,
-            timeoutSeconds: 5);
+        if (location.latitude != null && location.longitude != null) {
+          var nearest = await _session.onlineSession.sendGeo(
+              long: location.longitude!, lat: location.latitude!);
+          // TODO: process geolocation
+          // _session.cards.sort((a, b) => nearest.indexOf());
+        }
       } finally {
         setState(() {
           _isGeolocationRunning = false;
@@ -224,8 +223,9 @@ class _HomePageState extends State<HomePage> {
           floatingActionButton: FloatingActionButton(
             onPressed: () {
               setState(() {
-                _session.addCard(UserCard(
-                    nameOfShop: 'New card', cardNumber: '9780141026626'));
+                // _session.addCard(UserCard(
+                //     nameOfShop: 'New card', cardNumber: '9780141026626'));
+                _processGeolocation();
               });
             },
             tooltip: 'Get geolocation',

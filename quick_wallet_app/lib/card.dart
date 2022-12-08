@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:barcode_widget/barcode_widget.dart';
 import 'package:mobile_scanner/mobile_scanner.dart' show BarcodeFormat;
 import 'dart:convert';
+import 'shops.dart';
 
 // Card sizes
 const cardHeight = 150.0;
@@ -10,18 +11,18 @@ const defaultBarcodeType = BarcodeType.QrCode;
 
 // Card class
 class UserCard extends StatelessWidget {
-  UserCard({Key? key, required this.nameOfShop, required this.cardNumber, this.barcodeType = BarcodeType.QrCode})
+  UserCard({Key? key, required this.shop, required this.cardNumber, this.barcodeType = BarcodeType.QrCode})
       : super(key: key);
 
-  UserCard.fromScan({Key? key, required this.nameOfShop, required this.cardNumber, required BarcodeFormat format})
+  UserCard.fromScan({Key? key, required this.shop, required this.cardNumber, required BarcodeFormat format})
       : super(key: key) {
     barcodeType = convertBarcodeFormat(format);
   }
 
-  // final int storeID;
-  final String nameOfShop;
-  final String cardNumber;
-  late BarcodeType barcodeType;
+  Shop shop;
+  int? cardID;
+  String cardNumber;
+  BarcodeType barcodeType = defaultBarcodeType;
 
   static BarcodeType convertBarcodeFormat(BarcodeFormat format) {
     BarcodeType ret;
@@ -95,7 +96,7 @@ class UserCard extends StatelessWidget {
         crossAxisAlignment: CrossAxisAlignment.center,
         mainAxisAlignment: MainAxisAlignment.center,
         children: <Widget>[
-          Text(nameOfShop,
+          Text(shop.name,
               style: TextStyle(color: Theme.of(context).primaryColorDark)),
           Text(cardNumber, textAlign: TextAlign.center),
         ],
@@ -119,18 +120,18 @@ class UserCard extends StatelessWidget {
 
   // Deserialization from JSON
   UserCard.fromJson(Map<String, dynamic> json)
-      : nameOfShop = json['name'],
-        cardNumber = json['number'],
+      : shop = jsonDecode(json['shop']),
+        cardNumber = json['code'],
         barcodeType = BarcodeType.values[json['barcode']];
 
   // Serialization to JSON
   Map<String, dynamic> toJson() => {
-        'name': nameOfShop,
-        'number': cardNumber,
+        'shop': jsonEncode(shop),
+        'code': cardNumber,
         'barcode': barcodeType.index,
       };
 }
 
 class StubCard extends UserCard {
-  StubCard({super.nameOfShop = 'Add Card', super.cardNumber = ''});
+  StubCard() : super(shop: Shop.undefined(name: 'Add Card'), cardNumber: '');
 }

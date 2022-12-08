@@ -10,15 +10,16 @@ import 'shops.dart';
 class AuthError implements Exception {
   String? loginMsg;
   String? passMsg;
+
   AuthError({this.loginMsg, this.passMsg});
 }
 
 class UserSession {
-
   List<UserCard> cards = [];
   List<Shop> shops = [];
 
   UserSession();
+
   OnlineSession onlineSession = OnlineSession();
 
   init() async {
@@ -36,8 +37,7 @@ class UserSession {
 
     try {
       await onlineSession.load();
-    }
-    catch(e) {
+    } catch (e) {
       print(e);
     }
     await syncStoreData();
@@ -45,8 +45,9 @@ class UserSession {
 
   syncStoreData() async {
     if (onlineSession.isLoggedIn()) {
-      var res = await Requests.get('$serverAddress/stores',
-      headers: {'Authorization': '${onlineSession.token_type} ${onlineSession.token}'});
+      var res = await Requests.get('$serverAddress/stores', headers: {
+        'Authorization': '${onlineSession.token_type} ${onlineSession.token}'
+      });
       if (res.success) {
         Iterable l = jsonDecode(res.body);
         this.shops = List<Shop>.from(l.map((e) => Shop.fromJson(e)));
@@ -63,7 +64,6 @@ class UserSession {
   addCard(UserCard newCard) {
     cards.add(newCard);
   }
-
 }
 
 class OnlineSession {
@@ -96,27 +96,26 @@ class OnlineSession {
   register({required String login, required String password}) async {
     var creds = {'username': login, 'password': password};
     var res = await Requests.post('$serverAddress/auth/register',
-        json: creds,
-        port: serverPort,
-        timeoutSeconds: 30);
+        json: creds, port: serverPort, timeoutSeconds: 30);
     Map<String, String> data = jsonDecode(res.body);
     if (!res.success) {
-      String msg = data.containsKey('detail') ? data['detail']! : "Unknown error";
-      throw AuthError(loginMsg: msg, passMsg: msg.contains('Username') ? null : msg);
+      String msg =
+          data.containsKey('detail') ? data['detail']! : "Unknown error";
+      throw AuthError(
+          loginMsg: msg, passMsg: msg.contains('Username') ? null : msg);
     }
   }
 
   login({required String login, required String password}) async {
     var creds = {'username': login, 'password': password};
     var res = await Requests.post('$serverAddress/auth/login',
-        body: creds,
-        port: serverPort,
-        timeoutSeconds: 30);
+        body: creds, port: serverPort, timeoutSeconds: 30);
     print(res.body);
     Map<String, dynamic> data = jsonDecode(res.body);
     print(data);
     if (!res.success) {
-      String msg = data.containsKey('detail') ? data['detail']! : "Unknown error";
+      String msg =
+          data.containsKey('detail') ? data['detail']! : "Unknown error";
       throw AuthError(loginMsg: msg, passMsg: msg);
     }
     token = data['access_token']!;
@@ -133,5 +132,17 @@ class OnlineSession {
     token_type = null;
   }
 
-
+  Future<List<int>> sendGeo({required double lat, required double long}) async {
+    var creds = {'latitude': lat, 'longitude': long};
+    var res = await Requests.get('$serverAddress/cards/geo',
+        queryParameters: creds,
+        port: serverPort,
+        timeoutSeconds: 30,
+        headers: {'Authorization': '${token_type} ${token}'});
+    if (res.success) {
+      Iterable l = jsonDecode(res.body);
+      return List<int>.from(l.map((e) => e['store_id']));
+    }
+    return [];
+  }
 }
