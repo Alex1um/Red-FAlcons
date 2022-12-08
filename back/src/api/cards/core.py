@@ -15,24 +15,19 @@ async def get_all_cards(
     """Retrieves all cards from DB for that user."""
     query = select(Card).where(Card.owner_id == user_id)
     query_result = await db.execute(query)
-    result = []
-    for row in query_result.fetchall():
-        result.append(row.tuple()[0])
-    return result
+    return query_result.scalars().all()
 
 
 async def get_store_name(store_id: int, db: AsyncSession) -> str:
     query = select(Store).where(Store.id == store_id)
     query_result = await db.execute(query)
-    return query_result.first().tuple()[0].name
-
+    return query_result.scalar_one().name
 
 
 async def get_store_query(store_id: int, db: AsyncSession) -> str:
     query = select(Store).where(Store.id == store_id)
     query_result = await db.execute(query)
-    return query_result.first().tuple()[0].query
-
+    return query_result.scalar_one().query
 
 
 async def create_card(card: CardIn, user_id: int, db: AsyncSession) -> Card:
@@ -62,7 +57,7 @@ async def get_sorted_card_list(
 
     distance_map = dict()
     for card in cards:
-        query = await get_store_query(card.store_id, db)
+        query = card.store.query
         distance_map[card.store_id] = await find_nearest_shop(user_lat, user_lon, query)
     logger.debug(f"{distance_map}")
     cards_id_list = [
@@ -86,19 +81,23 @@ async def find_nearest_shop(user_lat, user_lon, query) -> float:
     return min_dist
 
 
-async def calculate_length(_lat1: float, _lon1: float, _lat2: float, _lon2: float) -> float:
+async def calculate_length(
+    _lat1: float, _lon1: float, _lat2: float, _lon2: float
+) -> float:
     R = 6372795
-    lat1 = _lat1 * math.pi / 180.
-    lat2 = _lat2 * math.pi / 180.
-    lon1 = _lon1 * math.pi / 180.
-    lon2 = _lon2 * math.pi / 180.
+    lat1 = _lat1 * math.pi / 180.0
+    lat2 = _lat2 * math.pi / 180.0
+    lon1 = _lon1 * math.pi / 180.0
+    lon2 = _lon2 * math.pi / 180.0
 
     delta = abs(lon1 - lon2)
-    num = (math.cos(lat2) * math.sin(delta)) ** 2 + \
-        (math.cos(lat1) * math.sin(lat2) - \
-         math.sin(lat1) * math.cos(lat2) * math.cos(delta)) ** 2
+    num = (math.cos(lat2) * math.sin(delta)) ** 2 + (
+        math.cos(lat1) * math.sin(lat2)
+        - math.sin(lat1) * math.cos(lat2) * math.cos(delta)
+    ) ** 2
     num = math.sqrt(num)
-    denom = math.sin(lat1) * math.sin(lat2) + \
-            math.cos(lat1) * math.cos(lat2) * math.cos(delta)
+    denom = math.sin(lat1) * math.sin(lat2) + math.cos(lat1) * math.cos(
+        lat2
+    ) * math.cos(delta)
     arctg = math.atan2(num, denom)
     return R * arctg
