@@ -35,12 +35,12 @@ class _CardAdder extends State<CardAdder> {
   Shop? _cardShop;
 
   // Request on submit
-  void _onSubmit() {
+  void _onSubmit() async {
     if (_formKey.currentState!.validate()) {
       _formKey.currentState!.save();
+      widget.session.addCard(UserCard(shop: _cardShop!, cardNumber: _cardNumber!));
       Navigator.pop(
           context,
-          _cardShop
       );
     }
   }

@@ -40,6 +40,7 @@ class UserSession {
       print(e);
     }
     await syncStoreData();
+    getCards();
   }
 
   syncStoreData() async {
@@ -61,8 +62,20 @@ class UserSession {
     await _onlineSession.save();
   }
 
-  addCard(UserCard newCard) {
+  addCard(UserCard newCard) async {
+    if (isLoggedIn()) {
+      newCard = UserCard.fromResponse(await _onlineSession.uploadCard(newCard), this);
+    }
     cards.add(newCard);
+    save();
+  }
+
+  getCards() async {
+    if (isLoggedIn()) {
+      // var cards = <UserCard>[];
+      print(this._onlineSession.getCards());
+      // newCard = UserCard.fromResponse(await _onlineSession.uploadCard(newCard), this);
+    }
   }
 
   login({required String login, required String password}) async {
@@ -79,7 +92,6 @@ class UserSession {
     _onlineSession.signOut();
   }
 
-
   Future<List<int>> sendGeo({required double lat, required double long}) async {
     return _onlineSession.sendGeo(lat: lat, long: long);
   }
@@ -90,6 +102,28 @@ class OnlineSession {
   String? token_type;
 
   OnlineSession();
+
+  uploadCard(UserCard card) async {
+    var creds = {'store_id': card.shop.id, 'code': card.barcode, 'code_type': card.barcode};
+    var res = await Requests.post(
+        '$serverAddress/cards/',
+        body: creds,
+        port: serverPort,
+        timeoutSeconds: 30,
+        headers: {'Authorization': '${token_type} ${token}'},
+    );
+    return jsonDecode(res.body);
+  }
+
+  Future<List<dynamic>> getCards() async {
+    var res = await Requests.get(
+      '$serverAddress/cards/',
+      port: serverPort,
+      timeoutSeconds: 30,
+      headers: {'Authorization': '${token_type} ${token}'},
+    );
+    return jsonDecode(res.body);
+  }
 
   load() async {
     var secureStorage = FlutterSecureStorage();
@@ -115,7 +149,7 @@ class OnlineSession {
   register({required String login, required String password}) async {
     var creds = {'username': login, 'password': password};
     var res = await Requests.post('$serverAddress/auth/register',
-        json: creds, port: serverPort, timeoutSeconds: 30);
+        body: creds, port: serverPort, timeoutSeconds: 30);
     Map<String, String> data = jsonDecode(res.body);
     if (!res.success) {
       String msg =
@@ -129,7 +163,6 @@ class OnlineSession {
     var creds = {'username': login, 'password': password};
     var res = await Requests.post('$serverAddress/auth/login',
         body: creds, port: serverPort, timeoutSeconds: 30);
-    print(res.body);
     Map<String, dynamic> data = jsonDecode(res.body);
     print(data);
     if (!res.success) {

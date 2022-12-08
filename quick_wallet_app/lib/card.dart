@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:barcode_widget/barcode_widget.dart';
 import 'package:mobile_scanner/mobile_scanner.dart' show BarcodeFormat;
+import 'package:quick_wallet_app/user_session.dart';
 import 'dart:convert';
 import 'shops.dart';
 
@@ -14,10 +15,17 @@ class UserCard extends StatelessWidget {
   UserCard({Key? key, required this.shop, required this.cardNumber, BarcodeType? barcode})
       : this.barcode = barcode ?? shop.default_code_type, super(key: key);
 
-  Shop shop;
-  int? cardID;
-  String cardNumber;
-  BarcodeType barcode;
+  UserCard.fromResponse(Map<String, dynamic> res, UserSession session) {
+    shop = session.shops.singleWhere((element) => element.id == res['store_id']);
+    cardNumber = res['code'];
+    cardID = res['id'];
+    barcode = BarcodeType.values[res['code_type']];
+  }
+
+  late Shop shop;
+  late int? cardID;
+  late String cardNumber;
+  late BarcodeType barcode;
 
   static BarcodeType convertBarcodeFormat(BarcodeFormat format) {
     BarcodeType ret;
