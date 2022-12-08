@@ -45,7 +45,7 @@ class _LoginState extends State<LoginView> {
       _isSubmitting = true;
       _formKey.currentState!.save();
       try {
-        await widget.session.onlineSession
+        await widget.session
             .login(login: _email, password: _password);
       } catch (e) {
         print("Error: $e");
@@ -71,7 +71,7 @@ class _LoginState extends State<LoginView> {
 
   @override
   Widget build(BuildContext context) {
-    if (widget.session.onlineSession.isLoggedIn()) {
+    if (widget.session.isLoggedIn()) {
       return Scaffold(
         appBar: AppBar(
           leading: IconButton(
@@ -84,7 +84,7 @@ class _LoginState extends State<LoginView> {
             Text('Logged In'),
             ElevatedButton(onPressed: () {
               setState(() {
-                widget.session.onlineSession.signOut();
+                widget.session.signOut();
               });
             }, child: Text("Log out")),
             ElevatedButton(onPressed: widget.session.save, child: Text("Sync"))

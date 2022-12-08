@@ -1,14 +1,18 @@
 import 'package:flutter/material.dart';
+import 'package:quick_wallet_app/user_session.dart';
 import 'card.dart';
 import 'package:barcode_widget/barcode_widget.dart'
     show BarcodeType, defaultBarcodeType;
+import 'package:filter_list/filter_list.dart';
+import 'shops.dart';
 
 class CardAdder extends StatefulWidget {
-  CardAdder({super.key, this.cardNumber, this.cardName, this.barcodeType});
+  CardAdder(
+      {super.key, this.cardNumber, this.barcodeType, required this.session});
 
+  final UserSession session;
   BarcodeType? barcodeType;
   String? cardNumber;
-  String? cardName;
 
   @override
   State<StatefulWidget> createState() => _CardAdder();
@@ -28,7 +32,7 @@ class _CardAdder extends State<CardAdder> {
   String? _cardNumber;
 
   // Password field value
-  String? _cardName;
+  Shop? _cardShop;
 
   // Request on submit
   void _onSubmit() {
@@ -36,11 +40,27 @@ class _CardAdder extends State<CardAdder> {
       _formKey.currentState!.save();
       Navigator.pop(
           context,
-          UserCard(
-            cardNumber: _cardNumber!,
-            barcodeType: widget.barcodeType ?? defaultBarcodeType,
-          ));
+          _cardShop
+      );
     }
+  }
+
+  void openShopSelector() async {
+    print(widget.session.shops);
+    await FilterListDelegate.show(
+      context: context,
+      list: widget.session.shops,
+      onItemSearch: (shop, query) {
+        return shop.name.toLowerCase().contains(query.toLowerCase());
+      },
+      onApplyButtonClick: (list) {
+        setState(() {
+          _cardShop = list![0];
+        });
+      },
+      tileLabel: (shop) => shop!.name,
+      enableOnlySingleSelection: true,
+    );
   }
 
   @override
@@ -78,18 +98,13 @@ class _CardAdder extends State<CardAdder> {
                   ),
                   child: Column(
                     textDirection: TextDirection.ltr,
-                    crossAxisAlignment: CrossAxisAlignment.center,
-                    mainAxisAlignment: MainAxisAlignment.center,
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: <Widget>[
-                      TextFormField(
-                        decoration: InputDecoration(
-                          label: const Text('Shop name'),
-                          errorText: _cardNameError,
-                        ),
-                        onSaved: (name) {
-                          _cardName = name!;
-                        },
-                        initialValue: widget.cardName,
+                      ListTile(
+                        title: Text(_cardShop == null ? 'Select shop' : _cardShop!.name),
+                        onTap: openShopSelector,
+
                       ),
                       TextFormField(
                         decoration: InputDecoration(
@@ -105,7 +120,8 @@ class _CardAdder extends State<CardAdder> {
                   ),
                 ),
               ),
-              ElevatedButton(onPressed: _onSubmit, child: const Text('Submit'))
+              ElevatedButton(
+                  onPressed: _onSubmit, child: const Text('Submit'))
             ],
           ),
         ),

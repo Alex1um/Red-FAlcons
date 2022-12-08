@@ -97,8 +97,8 @@ class _HomePageState extends State<HomePage> {
         });
         LocationData location = await _determinePosition();
         if (location.latitude != null && location.longitude != null) {
-          var nearest = await _session.onlineSession.sendGeo(
-              long: location.longitude!, lat: location.latitude!);
+          var nearest = await _session
+              .sendGeo(long: location.longitude!, lat: location.latitude!);
           // TODO: process geolocation
           // _session.cards.sort((a, b) => nearest.indexOf());
         }
@@ -136,8 +136,10 @@ class _HomePageState extends State<HomePage> {
           appBar: AppBar(
             leading: IconButton(
               icon: const Icon(Icons.account_circle),
-              onPressed: () => Navigator.push(context,
-                  MaterialPageRoute(builder: (context) => LoginView(session: _session))),
+              onPressed: () => Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                      builder: (context) => LoginView(session: _session))),
             ),
           ),
           // tabs body
@@ -192,21 +194,22 @@ class _HomePageState extends State<HomePage> {
                       showDivider: false,
                     ),
                     // Add card tab
-                    Container(
-                      child: MobileScanner(
-                        onDetect: (barcode, args) {
-                          // if (!_isAddingCard) {
+                    Stack(
+                      children: <Widget>[
+                        MobileScanner(
+                          onDetect: (barcode, args) {
+                            // if (!_isAddingCard) {
                             // _isAddingCard = true;
                             // deactivate();
                             Navigator.push(
                                 context,
                                 MaterialPageRoute(
-                                    builder: (context) =>
-                                        CardAdder(
+                                    builder: (context) => CardAdder(
                                           cardNumber: barcode.rawValue,
                                           barcodeType:
-                                          UserCard.convertBarcodeFormat(
-                                              barcode.format),
+                                              UserCard.convertBarcodeFormat(
+                                                  barcode.format),
+                                          session: _session,
                                         ))).then((value) {
                               _isAddingCard = false;
                               // activate();
@@ -214,23 +217,40 @@ class _HomePageState extends State<HomePage> {
                                 _session.addCard(value);
                               });
                             });
-                          // }
-                        },
-                      ),
+                            // }
+                          },
+                        ),
+                        ElevatedButton(onPressed: () {
+
+                          Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                  builder: (context) => CardAdder(
+                                    session: _session,
+                                  ))).then((value) {
+                            _isAddingCard = false;
+                            // activate();
+                            setState(() {
+                              _session.addCard(value);
+                            });
+                          });
+
+                        }, child: Text("Add card Manually"))
+                      ],
                     ),
                   ])),
           // Debug button
-          floatingActionButton: FloatingActionButton(
-            onPressed: () {
-              setState(() {
-                // _session.addCard(UserCard(
-                //     nameOfShop: 'New card', cardNumber: '9780141026626'));
-                _processGeolocation();
-              });
-            },
-            tooltip: 'Get geolocation',
-            child: const Icon(Icons.add),
-          ),
+          // floatingActionButton: FloatingActionButton(
+          //   onPressed: () {
+          //     setState(() {
+          //       // _session.addCard(UserCard(
+          //       //     nameOfShop: 'New card', cardNumber: '9780141026626'));
+          //       _processGeolocation();
+          //     });
+          //   },
+          //   tooltip: 'Get geolocation',
+          //   child: const Icon(Icons.add),
+          // ),
           floatingActionButtonLocation:
               FloatingActionButtonLocation.centerFloat,
           // Bottom navigation bar

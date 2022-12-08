@@ -4,7 +4,6 @@ import 'dart:convert';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:requests/requests.dart';
 import 'config.dart';
-import 'package:dart_jsonwebtoken/dart_jsonwebtoken.dart';
 import 'shops.dart';
 
 class AuthError implements Exception {
@@ -20,7 +19,7 @@ class UserSession {
 
   UserSession();
 
-  OnlineSession onlineSession = OnlineSession();
+  OnlineSession _onlineSession = OnlineSession();
 
   init() async {
     var prefs = await SharedPreferences.getInstance();
@@ -36,7 +35,7 @@ class UserSession {
     }
 
     try {
-      await onlineSession.load();
+      await _onlineSession.load();
     } catch (e) {
       print(e);
     }
@@ -44,9 +43,9 @@ class UserSession {
   }
 
   syncStoreData() async {
-    if (onlineSession.isLoggedIn()) {
+    if (_onlineSession.isLoggedIn()) {
       var res = await Requests.get('$serverAddress/stores', headers: {
-        'Authorization': '${onlineSession.token_type} ${onlineSession.token}'
+        'Authorization': '${_onlineSession.token_type} ${_onlineSession.token}'
       });
       if (res.success) {
         Iterable l = jsonDecode(res.body);
@@ -59,10 +58,30 @@ class UserSession {
     var prefs = await SharedPreferences.getInstance();
     await prefs.setString('cards', jsonEncode(cards));
     await prefs.setString('shops', jsonEncode(shops));
+    await _onlineSession.save();
   }
 
   addCard(UserCard newCard) {
     cards.add(newCard);
+  }
+
+  login({required String login, required String password}) async {
+    await _onlineSession.login(login: login, password: password);
+    await syncStoreData();
+    await _onlineSession.save();
+  }
+
+  bool isLoggedIn() {
+    return _onlineSession.isLoggedIn();
+  }
+
+  signOut() async {
+    _onlineSession.signOut();
+  }
+
+
+  Future<List<int>> sendGeo({required double lat, required double long}) async {
+    return _onlineSession.sendGeo(lat: lat, long: long);
   }
 }
 
@@ -120,7 +139,6 @@ class OnlineSession {
     }
     token = data['access_token']!;
     token_type = data['token_type']!;
-    await save();
     // {user_id: 1, exp: 1670434534}
   }
 
