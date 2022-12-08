@@ -1,5 +1,5 @@
 from sqlalchemy import Column, ForeignKey, Integer, String, text, TIMESTAMP
-from sqlalchemy.orm import relationship
+from sqlalchemy.orm import Mapped, relationship
 
 from .session import Base
 
@@ -14,6 +14,8 @@ class User(Base):
         TIMESTAMP(timezone=True), nullable=False, server_default=text("now()")
     )
 
+    cards: Mapped[list["Card"]] = relationship(back_populates="owner", lazy="selectin")
+
 
 class Card(Base):
     __tablename__ = "cards"
@@ -26,12 +28,13 @@ class Card(Base):
         Integer, ForeignKey("stores.id", ondelete="CASCADE"), nullable=False
     )
     code = Column(Integer, nullable=False)
+    code_type = Column(Integer, nullable=False)
     created_at = Column(
         TIMESTAMP(timezone=True), nullable=False, server_default=text("now()")
     )
 
-    owner = relationship("User", foreign_keys=[owner_id])
-    store = relationship("Store", foreign_keys=[store_id])
+    owner: Mapped["User"] = relationship(back_populates="cards", lazy="selectin")
+    store: Mapped["Store"] = relationship(back_populates="cards", lazy="selectin")
 
 
 class Store(Base):
@@ -41,3 +44,5 @@ class Store(Base):
     name = Column(String, nullable=False)
     query = Column(String, nullable=False)
     default_code_type = Column(Integer, nullable=False)
+
+    cards: Mapped[list["Card"]] = relationship(back_populates="store", lazy="selectin")

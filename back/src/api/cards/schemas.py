@@ -5,6 +5,7 @@ from pydantic import BaseModel
 class CardBase(BaseModel):
     store_id: int
     code: int
+    code_type: int
 
 
 class CardOut(CardBase):
