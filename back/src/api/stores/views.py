@@ -2,8 +2,6 @@ from fastapi import APIRouter, Depends
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from ...external.db.session import get_session
-from ...external.oauth2.core import get_current_user
-from ...external.oauth2.schemas import TokenData
 from .core import get_shops
 from .schemas import StoreOut
 
