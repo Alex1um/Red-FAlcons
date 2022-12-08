@@ -44,10 +44,10 @@ async def create_card_view(
 ):
     return await create_card(card, int(token_data.id), db)
 
-@cards_router.post(
+@cards_router.delete(
     "/delete",
     summary="Delete card.",
-    status_code=status.HTTP_201_CREATED,
+    status_code=status.HTTP_204_NO_CONTENT,
 )
 async def delete_card_view(
     card: Card,
