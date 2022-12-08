@@ -37,7 +37,6 @@ class _CardAdder extends State<CardAdder> {
       Navigator.pop(
           context,
           UserCard(
-            nameOfShop: _cardName!,
             cardNumber: _cardNumber!,
             barcodeType: widget.barcodeType ?? defaultBarcodeType,
           ));

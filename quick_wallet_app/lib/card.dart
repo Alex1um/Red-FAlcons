@@ -11,18 +11,13 @@ const defaultBarcodeType = BarcodeType.QrCode;
 
 // Card class
 class UserCard extends StatelessWidget {
-  UserCard({Key? key, required this.shop, required this.cardNumber, this.barcodeType = BarcodeType.QrCode})
-      : super(key: key);
-
-  UserCard.fromScan({Key? key, required this.shop, required this.cardNumber, required BarcodeFormat format})
-      : super(key: key) {
-    barcodeType = convertBarcodeFormat(format);
-  }
+  UserCard({Key? key, required this.shop, required this.cardNumber, BarcodeType? barcode})
+      : this.barcode = barcode ?? shop.default_code_type, super(key: key);
 
   Shop shop;
   int? cardID;
   String cardNumber;
-  BarcodeType barcodeType = defaultBarcodeType;
+  BarcodeType barcode;
 
   static BarcodeType convertBarcodeFormat(BarcodeFormat format) {
     BarcodeType ret;
@@ -94,7 +89,7 @@ class UserCard extends StatelessWidget {
       child: Column(
         textDirection: TextDirection.ltr,
         crossAxisAlignment: CrossAxisAlignment.center,
-        mainAxisAlignment: MainAxisAlignment.center,
+        mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: <Widget>[
           Text(shop.name,
               style: TextStyle(color: Theme.of(context).primaryColorDark)),
@@ -113,7 +108,7 @@ class UserCard extends StatelessWidget {
                 child: Center(
                     child: BarcodeWidget(
                       data: cardNumber,
-                      barcode: Barcode.fromType(barcodeType),
+                      barcode: Barcode.fromType(barcode),
                       errorBuilder: (context, error) => Center(child: Text(error)),
                 )))));
   }
@@ -122,14 +117,22 @@ class UserCard extends StatelessWidget {
   UserCard.fromJson(Map<String, dynamic> json)
       : shop = jsonDecode(json['shop']),
         cardNumber = json['code'],
-        barcodeType = BarcodeType.values[json['barcode']];
+        barcode = BarcodeType.values[json['code_type']],
+        cardID = json['id'];
 
   // Serialization to JSON
   Map<String, dynamic> toJson() => {
         'shop': jsonEncode(shop),
         'code': cardNumber,
-        'barcode': barcodeType.index,
+        'code_type': barcode.index,
+        'id': cardID,
       };
+
+  Map<String, dynamic> toBody() => {
+    'store_id': shop.id,
+    'code': cardNumber,
+    'code_type': barcode.index,
+  };
 }
 
 class StubCard extends UserCard {

@@ -163,7 +163,7 @@ class _HomePageState extends State<HomePage> {
                                 } else {
                                   _searched = _session.cards
                                       .where((UserCard element) =>
-                                          element.nameOfShop.contains(value))
+                                          element.shop.name.contains(value))
                                       .toList();
                                 }
                               });
