@@ -50,8 +50,8 @@ async def create_card_view(
     status_code=status.HTTP_204_NO_CONTENT,
 )
 async def delete_card_view(
-    card: Card,
+    card_id: int,
     token_data: TokenData = Depends(get_current_user),
     db: AsyncSession = Depends(get_session),
 ):
-    return await delete_card(card, int(token_data.id), db)
+    return await delete_card(card_id, db)
