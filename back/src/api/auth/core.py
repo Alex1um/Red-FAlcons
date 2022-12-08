@@ -55,15 +55,21 @@ async def get_user(id: int, db: AsyncSession) -> User:
 
     return old_user.tuple()[0]
 
-async def delete_user(user: User, db: AsyncSession) -> User:
+async def delete_user(user_id: int, db: AsyncSession):
     """
     Deletes user from DB.
 
     """
-    user_dict = user.dict()
-    username = user_dict["username"]
-    user_id = user_dict["id"]
-    query = delete().where(User.username == username)
+    if not user_id:
+        logger.info("Invalid Credentials")
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail="Invalid Credentials",
+        )
+    query = select(User).where(User.id == user_id)
+    query_result = await db.execute(query)
+    username = query_result.scalar_one().name
+    query = delete().where(User.id == user_id)
     res = await db.execute(query)
     await db.commit()
     logger.info("Deleted user with id: " + user_id + " and username: " + username " from DB.")

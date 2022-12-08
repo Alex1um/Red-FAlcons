@@ -49,7 +49,7 @@ async def init_tables():
 
 # test_app = TestClient(app)
 
-app_address = "http://127.0.0.1:3000"
+app_address = "http://127.0.0.1:8000"
 
 @pytest.mark.asyncio
 async def test_create_user():
