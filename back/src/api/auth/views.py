@@ -26,11 +26,3 @@ async def login_view(
 ):
     return await get_token(user_credentials, db)
 
-
-@auth_router.get("/{id}", response_model=UserOut)
-async def get_user_view(
-    id: int,
-    db: AsyncSession = Depends(get_session),
-    token_data: TokenData = Depends(get_current_user),
-):
-    return await get_user(id, db)
