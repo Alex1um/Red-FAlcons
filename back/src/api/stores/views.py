@@ -15,7 +15,6 @@ shops_router = APIRouter(tags=["stores"])
     "/stores", summary="Get closest shops.", response_model=list[StoreOut]
 )
 async def find_shops_view(
-    token_data: TokenData = Depends(get_current_user),
     db: AsyncSession = Depends(get_session),
 ):
     return await get_shops(db)
