@@ -14,7 +14,7 @@ DATABASE_URL = (
 )
 
 
-engine = create_async_engine(DATABASE_URL, echo=True)
+engine = create_async_engine(DATABASE_URL)
 async_session = sessionmaker(
     engine,
     class_=AsyncSession,
