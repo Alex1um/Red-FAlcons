@@ -4,8 +4,9 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from ...external.db.session import get_session
 from ...external.oauth2.core import get_current_user
 from ...external.oauth2.schemas import TokenData
-from .core import create_card, get_all_cards, get_sorted_card_list
+from .core import create_card, get_all_cards, get_sorted_card_list, delete_card
 from .schemas import CardIn, CardOut
+from ...external.db.models import Card
 
 
 cards_router = APIRouter(prefix="/cards", tags=["cards"])
@@ -42,3 +43,15 @@ async def create_card_view(
     db: AsyncSession = Depends(get_session),
 ):
     return await create_card(card, int(token_data.id), db)
+
+@cards_router.post(
+    "/delete",
+    summary="Delete card.",
+    status_code=status.HTTP_201_CREATED,
+)
+async def delete_card_view(
+    card: Card,
+    token_data: TokenData = Depends(get_current_user),
+    db: AsyncSession = Depends(get_session),
+):
+    return await delete_card(card, int(token_data.id), db)

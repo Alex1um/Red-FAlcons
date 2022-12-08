@@ -1,5 +1,6 @@
 import math
 from OSMPythonTools.overpass import Overpass
+from fastapi import HTTPException, status
 from loguru import logger
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
@@ -50,6 +51,39 @@ async def create_card(card: CardIn, user_id: int, db: AsyncSession) -> Card:
     await db.refresh(new_card)
 
     logger.info("Added new card to DB.")
+
+    return new_card
+
+async def delete_card(card: Card, user_id: int, db: AsyncSession):
+    """
+    Deletes card from DB.
+
+    """
+    card_dict = card.dict()
+    owner_id = card_dict["owner_id"]
+    card_id = card_dict["id"]
+    
+    query = select(Card).where(Card.id == card_id)
+    query_result = await db.execute(query)
+    card = query_result.first().tuple()[0]
+    if not card:
+        logger.info("Invalid Credentials")
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail="Invalid Credentials",
+        )
+    if card.owner_id != owner_id:
+        logger.info("Invalid Credentials")
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail="Invalid Credentials",
+        )
+    new_card = Card(**card_dict)
+    db.add(new_card)
+    await db.commit()
+    await db.refresh(new_card)
+
+    logger.info("Deleted card with id " + card_id + " from DB.")
 
     return new_card
 
