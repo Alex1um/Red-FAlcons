@@ -8,7 +8,7 @@ from .schemas import TokenData
 from ...settings import settings
 
 
-oauth2_scheme = OAuth2PasswordBearer(tokenUrl="login")
+oauth2_scheme = OAuth2PasswordBearer(tokenUrl="auth/login")
 ACCESS_TOKEN_EXPIRE_MINUTES = 30
 
 
