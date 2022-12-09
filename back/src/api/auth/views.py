@@ -25,12 +25,10 @@ async def login_view(
 ):
     return await get_token(user_credentials, db)
 
-@auth_router.delete(
-    "/delete", status_code=status.HTTP_204_NO_CONTENT
-)
+
+@auth_router.delete("/delete", status_code=status.HTTP_204_NO_CONTENT)
 async def delete_user_view(
     token_data: TokenData = Depends(get_current_user),
-    db: AsyncSession = Depends(get_session)
+    db: AsyncSession = Depends(get_session),
 ):
     return await delete_user(int(token_data.id), db)
-
