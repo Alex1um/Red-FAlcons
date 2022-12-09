@@ -90,12 +90,12 @@ async def get_sorted_card_list(
     user_id: int, db: AsyncSession, user_lat: float, user_lon: float
 ) -> list[Card]:
     cards = await get_all_cards(user_id, db)
-    cards_map = {card.store_id: card for card in cards}
+    cards_map = {card.id: card for card in cards}
 
     distance_map = dict()
     for card in cards:
         query = card.store.query
-        distance_map[card.store_id] = await find_nearest_shop(user_lat, user_lon, query)
+        distance_map[card.id] = await find_nearest_shop(user_lat, user_lon, query)
     logger.debug(f"{distance_map}")
     cards_id_list = [
         key[0] for key in sorted(distance_map.items(), key=lambda elem: elem[1])
