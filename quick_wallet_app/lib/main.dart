@@ -26,7 +26,8 @@ class QuickWalletApp extends StatelessWidget {
       //   primarySwatch: Colors.deepOrange,
       // ),
       theme: ThemeData(
-        primarySwatch: Colors.cyan,
+        primarySwatch: Colors.teal,
+        // primaryColor: Colors.teal[400],
         brightness: Brightness.dark,
       ),
       home: const HomePage(title: 'Flutter Demo Home Page'),
@@ -101,9 +102,10 @@ class _HomePageState extends State<HomePage> {
             leading: IconButton(
               icon: const Icon(Icons.account_circle),
               onPressed: () => Navigator.push(
-                  context,
-                  MaterialPageRoute (
-                      builder: (context) => LoginView(session: _session))),
+                      context,
+                      MaterialPageRoute(
+                          builder: (context) => LoginView(session: _session)))
+                  .then((value) => setState(() {})),
             ),
           ),
           // tabs body
@@ -112,66 +114,63 @@ class _HomePageState extends State<HomePage> {
                     // Search tab body
                     Container(
                         decoration: BoxDecoration(
-                          image: DecorationImage(
-                            image: AssetImage('bg-4.jpg'),
-                            fit: BoxFit.cover
-                          )
-                        ),
+                            image: DecorationImage(
+                                image: AssetImage('assets/bg-4.jpg'),
+                                fit: BoxFit.cover)),
                         child: Column(children: [
-                      // Grid
-                      Expanded(
-                          child: GridView.count(
-                        childAspectRatio: cardWidth / cardHeight,
-                        crossAxisCount: 2,
-                        children: _searched ?? _session.cards,
-                      )),
-                      // Search box
-                      Padding(
-                          padding: const EdgeInsets.all(5.0),
-                          child: TextFormField(
-                            onChanged: (value) {
-                              setState(() {
-                                if (value.isEmpty) {
-                                  _searched = null;
-                                } else {
-                                  _searched = _session.cards
-                                      .where((UserCard element) =>
-                                          element.shop.name.contains(value))
-                                      .toList();
-                                }
-                              });
-                            },
-                            // controller: editingController,
-                            decoration: const InputDecoration(
-                                labelText: "Search",
-                                hintText: "Search",
-                                prefixIcon: Icon(Icons.search),
-                                border: OutlineInputBorder(
-                                    borderRadius: BorderRadius.all(
-                                        Radius.circular(25.0)))),
-                          ))
-                    ])
-    ),
+                          // Grid
+                          Expanded(
+                              child: GridView.count(
+                            childAspectRatio: cardWidth / cardHeight,
+                            crossAxisCount: 2,
+                            children: _searched ?? _session.cards,
+                          )),
+                          // Search box
+                          Padding(
+                              padding: const EdgeInsets.all(5.0),
+                              child: TextFormField(
+                                onChanged: (value) {
+                                  setState(() {
+                                    if (value.isEmpty) {
+                                      _searched = null;
+                                    } else {
+                                      _searched = _session.cards
+                                          .where((UserCard element) => element
+                                              .shop.name
+                                              .toLowerCase()
+                                              .contains(value.toLowerCase()))
+                                          .toList();
+                                    }
+                                  });
+                                },
+                                // controller: editingController,
+                                decoration: const InputDecoration(
+                                    labelText: "Search",
+                                    hintText: "Search",
+                                    prefixIcon: Icon(Icons.search),
+                                    border: OutlineInputBorder(
+                                        borderRadius: BorderRadius.all(
+                                            Radius.circular(25.0)))),
+                              ))
+                        ])),
                     // Card Picker home page tab
                     Container(
                         decoration: BoxDecoration(
                             image: DecorationImage(
-                                image: AssetImage('bg-1.JPG'),
-                                fit: BoxFit.cover
-                            )
-                        ),
+                                image: AssetImage('assets/bg-1.JPG'),
+                                fit: BoxFit.cover)),
                         child: ScrollPicker(
-                      items: card_list,
-                      selectedItem: card_list[0],
-                      onSelectedTap: (card) {
-                        if (card.runtimeType == StubCard) {
-                          DefaultTabController.of(context)?.animateTo(2);
-                        } else {
-                          card.showBarcode(context);
-                        }
-                      },
-                      showDivider: false,
-                    )),
+                          items: card_list,
+                          selectedItem: card_list[0],
+                          onSelectedTap: (card) {
+                            if (card.runtimeType == StubCard) {
+                              DefaultTabController.of(context)?.animateTo(2);
+                            } else {
+                              card.showBarcode(context);
+                            }
+                          },
+                          showDivider: false,
+                        )),
                     // Add card tab
                     Stack(
                       children: <Widget>[

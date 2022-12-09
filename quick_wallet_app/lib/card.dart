@@ -91,13 +91,13 @@ class UserCard extends StatelessWidget {
       width: cardWidth,
       margin: const EdgeInsets.all(10.0),
       decoration: BoxDecoration(
-        color: Colors.grey,
+        color: userCardColor,
         // Decoration
         // image: DecorationImage(
         //     image: NetworkImage('https://yandex.ru/images/search?text=mastercard%20picture&from=tabbar&p=1&pos=37&rpt=simage&img_url=http%3A%2F%2Fmemberscommunitycu.org%2Fwp-content%2Fuploads%2F2018%2F06%2FMastercard-01.png&lr=65')
         // ),
         border: Border.all(
-          color: Colors.grey,
+          color: userCardColor,
           width: 5,
         ),
         borderRadius: const BorderRadius.all(Radius.circular(10)),
@@ -113,6 +113,7 @@ class UserCard extends StatelessWidget {
           children: <Widget>[
             Text(
               shop.name,
+              textAlign: TextAlign.start,
               style: TextStyle(color: Colors.white),
             ),
             Text(
@@ -130,14 +131,32 @@ class UserCard extends StatelessWidget {
     Navigator.push(
         context,
         MaterialPageRoute(
-            builder: (context) => Container(
-                color: Colors.white,
-                child: Center(
+            builder: (context) => Scaffold(
+                appBar: AppBar(
+                  leading: IconButton(
+                    icon: const Icon(Icons.arrow_back),
+                    onPressed: () => Navigator.pop(context),
+                  ),
+                  actions: [
+                    IconButton(onPressed: () {}, icon: const Icon(Icons.delete))
+                  ],
+                ),
+                body: Container(
+                  color: Colors.white,
+                  child: Center(
                     child: BarcodeWidget(
-                  data: cardNumber,
-                  barcode: Barcode.fromType(barcode),
-                  errorBuilder: (context, error) => Center(child: Text(error)),
-                )))));
+                      data: cardNumber,
+                      barcode: Barcode.fromType(barcode),
+                      errorBuilder: (context, error) {
+                        print(error);
+                        return Text('Cannot show Barcode');
+                        },
+                    )
+                  )
+            )
+        )
+        )
+    );
   }
 
   // Deserialization from JSON

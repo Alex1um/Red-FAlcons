@@ -71,6 +71,52 @@ class _LoginState extends State<LoginView> {
   Widget build(BuildContext context) {
     if (widget.session.isLoggedIn()) {
       return Scaffold(
+          appBar: AppBar(
+            leading: IconButton(
+              icon: const Icon(Icons.arrow_back),
+              onPressed: () => Navigator.pop(context),
+            ),
+          ),
+          body: Container(
+            decoration: const BoxDecoration(
+                image: DecorationImage(
+                    image: AssetImage('assets/bg-3.JPG'), fit: BoxFit.cover)),
+            child: Padding(
+              padding: const EdgeInsets.all(30),
+              child: Center(
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    const Text('Logged In as',style: TextStyle(fontSize: 16),),
+                    SizedBox(
+                      height: 10,
+                    ),
+                    Text(widget.session.name!, style: TextStyle(fontSize: 20),),
+                    SizedBox(
+                      height: 50,
+                    ),
+                    // Row(children: [
+                    ElevatedButton(
+                        onPressed: () {
+                          setState(() {
+                            widget.session.signOut();
+                          });
+                        },
+                        child: const Text("Log out")),
+                    // ]),
+                    SizedBox(
+                      height: 100,
+                    ),
+                    ElevatedButton(
+                        onPressed: widget.session.saveCards,
+                        child: Icon(Icons.sync))
+                  ],
+                ),
+              ),
+            ),
+          ));
+    }
+    return Scaffold(
         appBar: AppBar(
           leading: IconButton(
             icon: Icon(Icons.arrow_back),
@@ -80,116 +126,69 @@ class _LoginState extends State<LoginView> {
         body: Container(
           decoration: BoxDecoration(
               image: DecorationImage(
-                  image: AssetImage('bg-3.JPG'),
-                  fit: BoxFit.cover
-              )
-          ),
-          child:Padding(
-            padding: EdgeInsets.all(30),
-            child: Center(
-            child: Column(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                const Text('Logged In as'),
-                SizedBox(
-                  height: 10,
-                ),
-                Text(widget.session.name!),
-                SizedBox(
-                  height: 50,
-                ),
-                // Row(children: [
-                ElevatedButton(
-                    onPressed: () {
-                      setState(() {
-                        widget.session.signOut();
-                      });
+                  image: AssetImage('assets/bg-3.JPG'), fit: BoxFit.cover)),
+          child: Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 15),
+            child: Form(
+              key: _formKey,
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: <Widget>[
+                  TextFormField(
+                    decoration: InputDecoration(
+                      label: Text('Login'),
+                      errorText: _loginError,
+                    ),
+                    onSaved: (login) {
+                      _login = login!;
                     },
-                    child: const Text("Log out")),
-                // ]),
-                SizedBox(
-                  height: 100,
-                ),
-                ElevatedButton(
-                    onPressed: widget.session.saveCards, child: Icon(Icons.sync))
-              ],
+                  ),
+                  TextFormField(
+                    decoration: InputDecoration(
+                      label: const Text('Password'),
+                      hintText: _showPass ? '123456' : '******',
+                      errorText: _passError,
+                    ),
+                    obscureText: !_showPass,
+                    enableSuggestions: false,
+                    autocorrect: false,
+                    onSaved: (pass) {
+                      _password = pass!;
+                    },
+                  ),
+                  CheckboxListTile(
+                    title: const Text('Show password'),
+                    value: _showPass,
+                    onChanged: (value) => {
+                      setState(() {
+                        // if (value != null) {
+                        _showPass = value!;
+                        // }
+                      })
+                    },
+                    controlAffinity: ListTileControlAffinity.leading,
+                    contentPadding: EdgeInsets.zero,
+                  ),
+                  const SizedBox(
+                    height: 10,
+                  ),
+                  Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        ElevatedButton(
+                            onPressed: _onSubmit, child: const Text('Sign in')),
+                        ElevatedButton(
+                            style: ElevatedButton.styleFrom(
+                              backgroundColor: Colors.pink[400],
+                            ),
+                            onPressed: () => _onSubmit(isRegister: true),
+                            child: const Text('Sign up')),
+                      ]),
+                ],
+              ),
             ),
           ),
-        ),
-      ));
-    }
-    return Scaffold(
-      appBar: AppBar(
-        leading: IconButton(
-          icon: Icon(Icons.arrow_back),
-          onPressed: () => Navigator.pop(context),
-        ),
-      ),
-      body: Container(
-
-    decoration: BoxDecoration(
-    image: DecorationImage(
-    image: AssetImage('bg-3.JPG'),
-    fit: BoxFit.cover
-    )
-    ),
-    child:Padding(
-    padding: const EdgeInsets.symmetric(horizontal: 15),
-    child: Form(
-    key: _formKey,
-    child: Column(
-            mainAxisAlignment: MainAxisAlignment.center,
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: <Widget>[
-              TextFormField(
-                decoration: InputDecoration(
-                  label: Text('Login'),
-                  errorText: _loginError,
-                ),
-                onSaved: (login) {
-                  _login = login!;
-                },
-              ),
-              TextFormField(
-                decoration: InputDecoration(
-                  label: const Text('Password'),
-                  hintText: _showPass ? '123456' : '******',
-                  errorText: _passError,
-                ),
-                obscureText: !_showPass,
-                enableSuggestions: false,
-                autocorrect: false,
-                onSaved: (pass) {
-                  _password = pass!;
-                },
-              ),
-              CheckboxListTile(
-                title: const Text('Show password'),
-                value: _showPass,
-                onChanged: (value) => {
-                  setState(() {
-                    // if (value != null) {
-                    _showPass = value!;
-                    // }
-                  })
-                },
-                controlAffinity: ListTileControlAffinity.leading,
-                contentPadding: EdgeInsets.zero,
-              ),
-              const SizedBox(
-                height: 10,
-              ),
-              Row(mainAxisAlignment: MainAxisAlignment.spaceBetween, children: [
-                ElevatedButton(
-                    onPressed: _onSubmit, child: const Text('Sign in')),
-                const Text('or'),
-                ElevatedButton(
-                    onPressed: () => _onSubmit(isRegister: true), child: const Text('Sign up')),
-              ]),
-            ],
-          ),
-        ),
-      ),
-    ));
+        ));
   }
 }

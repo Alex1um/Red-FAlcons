@@ -8,6 +8,7 @@ import 'package:requests/requests.dart';
 import 'config.dart';
 import 'shops.dart';
 import 'package:location/location.dart';
+import 'dart:convert';
 
 // Enable needed services and get geolocation
 Future<LocationData> _determinePosition() async {
@@ -123,8 +124,8 @@ class UserSession {
   login({required String login, required String password}) async {
     await _onlineSession.login(login: login, password: password);
     _onlineSession.name = login;
+    await syncCardData();
     await saveCards();
-    await syncStoreData();
   }
 
 
