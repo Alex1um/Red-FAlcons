@@ -77,9 +77,16 @@ class _LoginState extends State<LoginView> {
             onPressed: () => Navigator.pop(context),
           ),
         ),
-        body: Padding(
-          padding: EdgeInsets.all(30),
-          child: Center(
+        body: Container(
+          decoration: BoxDecoration(
+              image: DecorationImage(
+                  image: AssetImage('bg-3.JPG'),
+                  fit: BoxFit.cover
+              )
+          ),
+          child:Padding(
+            padding: EdgeInsets.all(30),
+            child: Center(
             child: Column(
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
@@ -109,7 +116,7 @@ class _LoginState extends State<LoginView> {
             ),
           ),
         ),
-      );
+      ));
     }
     return Scaffold(
       appBar: AppBar(
@@ -118,11 +125,19 @@ class _LoginState extends State<LoginView> {
           onPressed: () => Navigator.pop(context),
         ),
       ),
-      body: Padding(
-        padding: const EdgeInsets.symmetric(horizontal: 15),
-        child: Form(
-          key: _formKey,
-          child: Column(
+      body: Container(
+
+    decoration: BoxDecoration(
+    image: DecorationImage(
+    image: AssetImage('bg-3.JPG'),
+    fit: BoxFit.cover
+    )
+    ),
+    child:Padding(
+    padding: const EdgeInsets.symmetric(horizontal: 15),
+    child: Form(
+    key: _formKey,
+    child: Column(
             mainAxisAlignment: MainAxisAlignment.center,
             crossAxisAlignment: CrossAxisAlignment.start,
             children: <Widget>[
@@ -175,6 +190,6 @@ class _LoginState extends State<LoginView> {
           ),
         ),
       ),
-    );
+    ));
   }
 }

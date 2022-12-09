@@ -113,7 +113,7 @@ class _HomePageState extends State<HomePage> {
                     Container(
                         decoration: BoxDecoration(
                           image: DecorationImage(
-                            image: AssetImage('assets/bg-4.jpg'),
+                            image: AssetImage('bg-4.jpg'),
                             fit: BoxFit.cover
                           )
                         ),
@@ -153,7 +153,14 @@ class _HomePageState extends State<HomePage> {
                     ])
     ),
                     // Card Picker home page tab
-                    ScrollPicker(
+                    Container(
+                        decoration: BoxDecoration(
+                            image: DecorationImage(
+                                image: AssetImage('bg-1.JPG'),
+                                fit: BoxFit.cover
+                            )
+                        ),
+                        child: ScrollPicker(
                       items: card_list,
                       selectedItem: card_list[0],
                       onSelectedTap: (card) {
@@ -164,7 +171,7 @@ class _HomePageState extends State<HomePage> {
                         }
                       },
                       showDivider: false,
-                    ),
+                    )),
                     // Add card tab
                     Stack(
                       children: <Widget>[
