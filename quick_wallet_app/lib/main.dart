@@ -88,10 +88,12 @@ class _HomePageState extends State<HomePage> {
   // Render home page
   @override
   Widget build(BuildContext context) {
-    var card_list = <UserCard>[StubCard()] + _session.cards;
-    if (_session.cards.isNotEmpty) {
-      card_list += <UserCard>[StubCard()];
-    }
+    var stub1 = <UserCard>[StubCard()];
+    var stub2 = <UserCard>[StubCard()];
+    // var card_list = <UserCard>[StubCard()] + _session.cards;
+    // if (_session.cards.isNotEmpty) {
+    //   card_list += <UserCard>[StubCard()];
+    // }
     return DefaultTabController(
         length: 3,
         initialIndex: 1,
@@ -160,8 +162,8 @@ class _HomePageState extends State<HomePage> {
                                 image: AssetImage('assets/bg-1.JPG'),
                                 fit: BoxFit.cover)),
                         child: ScrollPicker(
-                          items: card_list,
-                          selectedItem: card_list[0],
+                          items: _session.cards.isEmpty ? stub1 : stub1 + _session.cards + stub2,
+                          selectedItem: _session.cards.isEmpty ? stub1[0] : _session.cards[0],
                           onSelectedTap: (card) {
                             if (card.runtimeType == StubCard) {
                               DefaultTabController.of(context)?.animateTo(2);

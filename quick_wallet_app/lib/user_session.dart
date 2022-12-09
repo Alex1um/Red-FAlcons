@@ -88,7 +88,7 @@ class UserSession {
       await saveCards();
       LocationData location = await _determinePosition();
       if (location.latitude != null && location.longitude != null) {
-        await _onlineSession.sendGeo(long: location.longitude!, lat: location.latitude!);
+        procGeo(lat: location.latitude!, long: location.longitude!);
       }
     }
   }
@@ -153,8 +153,9 @@ class UserSession {
   void procGeo({required double lat, required double long}) async {
     var res = await _onlineSession.sendGeo(lat: lat, long: long);
     if (res.success) {
+      print(res.body);
       Iterable l = jsonDecode(res.body);
-      this.cards = List<UserCard>.from(l.map((e) => UserCard.fromJson(e)));
+      this.cards = List<UserCard>.from(l.map((e) => UserCard.fromResponse(e, this)));
       // return List<int>.from(l.map((e) => e['store_id']));
 
     }

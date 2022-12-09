@@ -127,8 +127,9 @@ class UserCard extends StatelessWidget {
     );
   }
 
-  _deleteCard(UserSession session) {
-    session.removeCard(this);
+  _deleteCard(BuildContext context, UserSession session) async {
+    await session.removeCard(this);
+    Navigator.pop(context);
   }
 
   void showBarcode(BuildContext context, UserSession session) {
@@ -143,7 +144,7 @@ class UserCard extends StatelessWidget {
                   ),
                   actions: [
                     IconButton(onPressed: () {
-                      _deleteCard(session);
+                      _deleteCard(context, session);
                     }, icon: const Icon(Icons.delete))
                   ],
                 ),
