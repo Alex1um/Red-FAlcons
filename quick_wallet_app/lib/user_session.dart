@@ -143,7 +143,7 @@ class UserSession {
   }
 
   void procGeo({required double lat, required double long}) async {
-    var res = await _onlineSession.sendGeo(lat: lat, long: long)
+    var res = await _onlineSession.sendGeo(lat: lat, long: long);
     if (res.success) {
       Iterable l = jsonDecode(res.body);
       this.cards = List<UserCard>.from(l.map((e) => UserCard.fromJson(e)));

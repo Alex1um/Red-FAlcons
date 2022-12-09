@@ -60,24 +60,18 @@ class _HomePageState extends State<HomePage> {
 
   late UserSession _session;
 
-
   void _addCardDialog(barcode, args) async {
     if (!_isAddingCard) {
       _isAddingCard = true;
       await Navigator.push(
           context,
           MaterialPageRoute(
-              builder: (context) =>
-                  CardAdder(
+              builder: (context) => CardAdder(
                     cardNumber: barcode.rawValue,
-                    barcodeType:
-                    UserCard.convertBarcodeFormat(
-                        barcode.format),
+                    barcodeType: UserCard.convertBarcodeFormat(barcode.format),
                     session: _session,
                   )));
-      setState(() {
-
-      });
+      setState(() {});
       _isAddingCard = false;
     }
   }
@@ -108,7 +102,7 @@ class _HomePageState extends State<HomePage> {
               icon: const Icon(Icons.account_circle),
               onPressed: () => Navigator.push(
                   context,
-                  MaterialPageRoute(
+                  MaterialPageRoute (
                       builder: (context) => LoginView(session: _session))),
             ),
           ),
@@ -116,7 +110,14 @@ class _HomePageState extends State<HomePage> {
           body: Builder(
               builder: (context) => TabBarView(children: <Widget>[
                     // Search tab body
-                    Column(children: [
+                    Container(
+                        decoration: BoxDecoration(
+                          image: DecorationImage(
+                            image: AssetImage('assets/bg-4.jpg'),
+                            fit: BoxFit.cover
+                          )
+                        ),
+                        child: Column(children: [
                       // Grid
                       Expanded(
                           child: GridView.count(
@@ -149,7 +150,8 @@ class _HomePageState extends State<HomePage> {
                                     borderRadius: BorderRadius.all(
                                         Radius.circular(25.0)))),
                           ))
-                    ]),
+                    ])
+    ),
                     // Card Picker home page tab
                     ScrollPicker(
                       items: card_list,
@@ -166,46 +168,42 @@ class _HomePageState extends State<HomePage> {
                     // Add card tab
                     Stack(
                       children: <Widget>[
-                        MobileScanner(
-                          onDetect: _addCardDialog
-                        ),
+                        MobileScanner(onDetect: _addCardDialog),
                         Align(
                             alignment: Alignment.bottomCenter,
                             child: Padding(
-                              padding: EdgeInsets.symmetric(vertical: 40, horizontal: 25),
+                                padding: EdgeInsets.symmetric(
+                                    vertical: 40, horizontal: 25),
                                 child: ElevatedButton(
-                                  // style: ElevatedButton.styleFrom(
-                                  //     minimumSize: const Size.fromHeight(50)),
-                                  onPressed: () {
-                                    Navigator.push(
-                                        context,
-                                        MaterialPageRoute(
-                                            builder: (context) => CardAdder(
-                                                  session: _session,
-                                                ))).then((value) {
-                                      _isAddingCard = false;
-                                      // activate();
-                                      setState(() {
-                                        _session.addCard(value);
+                                    // style: ElevatedButton.styleFrom(
+                                    //     minimumSize: const Size.fromHeight(50)),
+                                    onPressed: () {
+                                      Navigator.push(
+                                          context,
+                                          MaterialPageRoute(
+                                              builder: (context) => CardAdder(
+                                                    session: _session,
+                                                  ))).then((value) {
+                                        _isAddingCard = false;
+                                        // activate();
+                                        setState(() {
+                                          _session.addCard(value);
+                                        });
                                       });
-                                    });
-                                  },
-                                  child: const Text(
-                                    "Add card Manually",
-                                    style: TextStyle(
-                                      fontSize: 18.0
-                                    ),
-                                  )
-                            )
-                            )
-                        )
+                                    },
+                                    child: const Text(
+                                      "Add card Manually",
+                                      style: TextStyle(fontSize: 18.0),
+                                    ))))
                       ],
                     ),
                   ])),
           // Bottom navigation bar
           bottomNavigationBar: TabBar(
             tabs: const [
-              Tab(icon: Icon(Icons.account_balance_wallet_outlined), text: 'Cards'),
+              Tab(
+                  icon: Icon(Icons.account_balance_wallet_outlined),
+                  text: 'Cards'),
               Tab(icon: Icon(Icons.approval), text: 'Suggested'),
               Tab(icon: Icon(Icons.add_card), text: 'Add new'),
             ],
