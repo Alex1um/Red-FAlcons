@@ -9,6 +9,7 @@ import 'shops.dart';
 const cardHeight = 150.0;
 const cardWidth = 238.0;
 const defaultBarcodeType = BarcodeType.QrCode;
+const userCardColor = Colors.deepPurpleAccent;
 
 // Card class
 class UserCard extends StatelessWidget {
@@ -29,7 +30,7 @@ class UserCard extends StatelessWidget {
   }
 
   late Shop shop;
-  late int? cardID;
+  int? cardID;
   late String cardNumber;
   late BarcodeType barcode;
 
@@ -102,7 +103,9 @@ class UserCard extends StatelessWidget {
         borderRadius: const BorderRadius.all(Radius.circular(10)),
       ),
       child: Padding(
-        padding: EdgeInsets.symmetric(vertical: 10.0,),
+        padding: EdgeInsets.symmetric(
+          vertical: 10.0,
+        ),
         child: Column(
           // textDirection: TextDirection.ltr,
           crossAxisAlignment: CrossAxisAlignment.start,
@@ -139,18 +142,23 @@ class UserCard extends StatelessWidget {
 
   // Deserialization from JSON
   UserCard.fromJson(Map<String, dynamic> json)
-      : shop = jsonDecode(json['shop']),
+      : shop = Shop.fromJson(json['shop']),
         cardNumber = json['code'],
         barcode = BarcodeType.values[json['code_type']],
         cardID = json['id'];
 
   // Serialization to JSON
-  Map<String, dynamic> toJson() => {
-        'shop': jsonEncode(shop),
-        'code': cardNumber,
-        'code_type': barcode.index,
-        'id': cardID,
-      };
+  Map<String, dynamic> toJson() {
+    var enc = {
+      'code': cardNumber,
+      'code_type': barcode.index,
+      'shop': shop,
+    };
+    if (cardID != null) {
+      enc['id'] = cardID!;
+    }
+    return enc;
+  }
 
   Map<String, dynamic> toBody() => {
         'store_id': shop.id,
@@ -170,13 +178,13 @@ class StubCard extends UserCard {
       width: cardWidth,
       margin: const EdgeInsets.all(10.0),
       decoration: BoxDecoration(
-        color: Colors.grey,
+        color: userCardColor,
         // Decoration
         // image: DecorationImage(
         //     image: NetworkImage('https://yandex.ru/images/search?text=mastercard%20picture&from=tabbar&p=1&pos=37&rpt=simage&img_url=http%3A%2F%2Fmemberscommunitycu.org%2Fwp-content%2Fuploads%2F2018%2F06%2FMastercard-01.png&lr=65')
         // ),
         border: Border.all(
-          color: Colors.grey,
+          color: userCardColor,
           width: 5,
         ),
         borderRadius: const BorderRadius.all(Radius.circular(10)),

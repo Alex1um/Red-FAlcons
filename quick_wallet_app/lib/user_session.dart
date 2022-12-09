@@ -25,6 +25,8 @@ class UserSession {
 
   init() async {
     var prefs = await SharedPreferences.getInstance();
+    prefs.remove('cards');
+    // prefs.remove('shops');
     var cards = prefs.getString('cards');
     if (cards != null) {
       Iterable l = jsonDecode(cards);
@@ -47,21 +49,20 @@ class UserSession {
   }
 
   syncStoreData() async {
-    if (_onlineSession.isLoggedIn()) {
-      var res = await Requests.get('$serverAddress/stores', headers: {
-        'Authorization': '${_onlineSession.token_type} ${_onlineSession.token}'
-      });
-      if (res.success) {
-        Iterable l = jsonDecode(res.body);
-        this.shops = List<Shop>.from(l.map((e) => Shop.fromJson(e)));
-      }
+    var res = await Requests.get('$serverAddress/stores',
+    );
+    if (res.success) {
+      Iterable l = jsonDecode(res.body);
+      this.shops = List<Shop>.from(l.map((e) => Shop.fromJson(e)));
     }
+    var prefs = await SharedPreferences.getInstance();
+    await prefs.setString('shops', jsonEncode(shops));
   }
 
-  save() async {
+  saveCards() async {
+    print(cards);
     var prefs = await SharedPreferences.getInstance();
     await prefs.setString('cards', jsonEncode(cards));
-    await prefs.setString('shops', jsonEncode(shops));
     if (isLoggedIn()) {
       await prefs.setString('login', _onlineSession.name!);
     }
@@ -73,7 +74,7 @@ class UserSession {
       newCard = UserCard.fromResponse(await _onlineSession.uploadCard(newCard), this);
     }
     cards.add(newCard);
-    save();
+    await saveCards();
   }
 
   getCards() async {
@@ -87,7 +88,7 @@ class UserSession {
   login({required String login, required String password}) async {
     await _onlineSession.login(login: login, password: password);
     _onlineSession.name = login;
-    await save();
+    await saveCards();
     await syncStoreData();
   }
 
@@ -128,6 +129,7 @@ class OnlineSession {
         timeoutSeconds: 30,
         headers: {'Authorization': '${token_type} ${token}'},
     );
+    print(res.statusCode);
     print(res.body);
     return jsonDecode(res.body);
   }

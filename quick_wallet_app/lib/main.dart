@@ -21,13 +21,14 @@ class QuickWalletApp extends StatelessWidget {
   Widget build(BuildContext context) {
     return MaterialApp(
       title: 'Quick Wallet app',
-      themeMode: ThemeMode.system,
-      darkTheme: ThemeData(
-        brightness: Brightness.dark,
-        primarySwatch: Colors.deepOrange,
-      ),
+      // themeMode: ThemeMode.system,
+      // darkTheme: ThemeData(
+      //   brightness: Brightness.dark,
+      //   primarySwatch: Colors.deepOrange,
+      // ),
       theme: ThemeData(
-        primarySwatch: Colors.blue,
+        primarySwatch: Colors.cyan,
+        brightness: Brightness.dark,
       ),
       home: const HomePage(title: 'Flutter Demo Home Page'),
     );
@@ -95,8 +96,8 @@ class _HomePageState extends State<HomePage> {
         });
         LocationData location = await _determinePosition();
         if (location.latitude != null && location.longitude != null) {
-          var nearest = await _session
-              .sendGeo(long: location.longitude!, lat: location.latitude!);
+          var nearest = await _session.sendGeo(
+              long: location.longitude!, lat: location.latitude!);
           // TODO: process geolocation
           // _session.cards.sort((a, b) => nearest.indexOf());
         }
@@ -105,6 +106,27 @@ class _HomePageState extends State<HomePage> {
           _isGeolocationRunning = false;
         });
       }
+    }
+  }
+
+  void _addCardDialog(barcode, args) async {
+    if (!_isAddingCard) {
+      _isAddingCard = true;
+      await Navigator.push(
+          context,
+          MaterialPageRoute(
+              builder: (context) =>
+                  CardAdder(
+                    cardNumber: barcode.rawValue,
+                    barcodeType:
+                    UserCard.convertBarcodeFormat(
+                        barcode.format),
+                    session: _session,
+                  )));
+      setState(() {
+
+      });
+      _isAddingCard = false;
     }
   }
 
@@ -195,60 +217,54 @@ class _HomePageState extends State<HomePage> {
                     Stack(
                       children: <Widget>[
                         MobileScanner(
-                          onDetect: (barcode, args) {
-                            // if (!_isAddingCard) {
-                            // _isAddingCard = true;
-                            // deactivate();
-                            Navigator.push(
-                                context,
-                                MaterialPageRoute(
-                                    builder: (context) => CardAdder(
-                                          cardNumber: barcode.rawValue,
-                                          barcodeType:
-                                              UserCard.convertBarcodeFormat(
-                                                  barcode.format),
-                                          session: _session,
-                                        ))).then((value) {
-                              _isAddingCard = false;
-                              // activate();
-                              setState(() {
-                                _session.addCard(value);
-                              });
-                            });
-                            // }
-                          },
+                          onDetect: _addCardDialog
                         ),
-                        ElevatedButton(onPressed: () {
-
-                          Navigator.push(
-                              context,
-                              MaterialPageRoute(
-                                  builder: (context) => CardAdder(
-                                    session: _session,
-                                  ))).then((value) {
-                            _isAddingCard = false;
-                            // activate();
-                            setState(() {
-                              _session.addCard(value);
-                            });
-                          });
-
-                        }, child: Text("Add card Manually"))
+                        Align(
+                            alignment: Alignment.bottomCenter,
+                            child: Padding(
+                              padding: EdgeInsets.symmetric(vertical: 40, horizontal: 25),
+                                child: ElevatedButton(
+                                  style: ElevatedButton.styleFrom(
+                                      minimumSize: const Size.fromHeight(50)),
+                                  onPressed: () {
+                                    Navigator.push(
+                                        context,
+                                        MaterialPageRoute(
+                                            builder: (context) => CardAdder(
+                                                  session: _session,
+                                                ))).then((value) {
+                                      _isAddingCard = false;
+                                      // activate();
+                                      setState(() {
+                                        _session.addCard(value);
+                                      });
+                                    });
+                                  },
+                                  child: const Text(
+                                    "Add card Manually",
+                                    style: TextStyle(
+                                      fontSize: 18.0
+                                    ),
+                                  )
+                            )
+                            )
+                        )
                       ],
                     ),
                   ])),
           // Debug button
-          floatingActionButton: FloatingActionButton(
-            onPressed: () {
-              setState(() {
-                _session.addCard(UserCard(
-                    shop: Shop.undefined(name: 'Unknown'), cardNumber: '9780141026626'));
-                // _processGeolocation();
-              });
-            },
-            tooltip: 'Get geolocation',
-            child: const Icon(Icons.add),
-          ),
+          // floatingActionButton: FloatingActionButton(
+          //   onPressed: () {
+          //     setState(() {
+          //       _session.addCard(UserCard(
+          //           shop: Shop.undefined(name: 'Unknown'),
+          //           cardNumber: '9780141026626'));
+          //       _processGeolocation();
+              // });
+            // },
+            // tooltip: 'Get geolocation',
+            // child: const Icon(Icons.add),
+          // ),
           floatingActionButtonLocation:
               FloatingActionButtonLocation.centerFloat,
           // Bottom navigation bar

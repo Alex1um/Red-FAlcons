@@ -104,7 +104,7 @@ class _LoginState extends State<LoginView> {
                   height: 100,
                 ),
                 ElevatedButton(
-                    onPressed: widget.session.save, child: Icon(Icons.sync))
+                    onPressed: widget.session.saveCards, child: Icon(Icons.sync))
               ],
             ),
           ),

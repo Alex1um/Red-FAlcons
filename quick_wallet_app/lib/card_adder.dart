@@ -38,15 +38,15 @@ class _CardAdder extends State<CardAdder> {
   void _onSubmit() async {
     if (_formKey.currentState!.validate()) {
       _formKey.currentState!.save();
-      widget.session.addCard(UserCard(shop: _cardShop!, cardNumber: _cardNumber!));
+      await widget.session
+          .addCard(UserCard(shop: _cardShop!, cardNumber: _cardNumber!, barcode: widget.barcodeType,));
       Navigator.pop(
-          context,
+        context,
       );
     }
   }
 
   void openShopSelector() async {
-    print(widget.session.shops);
     await FilterListDelegate.show(
       context: context,
       list: widget.session.shops,
@@ -60,72 +60,97 @@ class _CardAdder extends State<CardAdder> {
       },
       tileLabel: (shop) => shop!.name,
       enableOnlySingleSelection: true,
+
     );
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      resizeToAvoidBottomInset: true,
       appBar: AppBar(
         leading: IconButton(
           icon: Icon(Icons.arrow_back),
           onPressed: () => Navigator.pop(context),
         ),
+        title: const Text('Add new card'),
       ),
-      body: Padding(
-        padding: const EdgeInsets.symmetric(horizontal: 15),
-        child: Form(
-          key: _formKey,
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: <Widget>[
-              Center(
-                child: Container(
-                  alignment: Alignment.center,
-                  height: cardHeight,
-                  width: cardWidth,
-                  margin: const EdgeInsets.all(10.0),
-                  decoration: BoxDecoration(
-                    // Decoration
-                    // image: DecorationImage(
-                    //     image: NetworkImage('https://yandex.ru/images/search?text=mastercard%20picture&from=tabbar&p=1&pos=37&rpt=simage&img_url=http%3A%2F%2Fmemberscommunitycu.org%2Fwp-content%2Fuploads%2F2018%2F06%2FMastercard-01.png&lr=65')
-                    // ),
-                    border: Border.all(
-                      color: Colors.grey,
-                      width: 5,
-                    ),
-                    borderRadius: const BorderRadius.all(Radius.circular(10)),
-                  ),
-                  child: Column(
-                    textDirection: TextDirection.ltr,
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: <Widget>[
-                      ListTile(
-                        title: Text(_cardShop == null ? 'Select shop' : _cardShop!.name),
-                        onTap: openShopSelector,
-
-                      ),
-                      TextFormField(
-                        decoration: InputDecoration(
-                          label: const Text('Card Number'),
-                          errorText: _cardNumberError,
+      body: Column(mainAxisAlignment: MainAxisAlignment.center,
+          // padding: const EdgeInsets.symmetric(horizontal: 15),
+          children: [
+            Form(
+              key: _formKey,
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: <Widget>[
+                  Center(
+                    child: Container(
+                      alignment: Alignment.center,
+                      height: cardHeight,
+                      width: cardWidth,
+                      margin: const EdgeInsets.all(10.0),
+                      decoration: BoxDecoration(
+                        // Decoration
+                        // image: DecorationImage(
+                        //     image: NetworkImage('https://yandex.ru/images/search?text=mastercard%20picture&from=tabbar&p=1&pos=37&rpt=simage&img_url=http%3A%2F%2Fmemberscommunitycu.org%2Fwp-content%2Fuploads%2F2018%2F06%2FMastercard-01.png&lr=65')
+                        // ),
+                        // color: Theme.of(context).,
+                        color: userCardColor,
+                        border: Border.all(
+                          color: Colors.black,
+                          width: 1,
                         ),
-                        onSaved: (number) {
-                          _cardNumber = number!;
-                        },
-                        initialValue: widget.cardNumber,
+                        borderRadius:
+                            const BorderRadius.all(Radius.circular(10)),
                       ),
-                    ],
+                      child: Column(
+                        textDirection: TextDirection.ltr,
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: <Widget>[
+                          ListTile(
+                            title: Text(
+                              _cardShop == null ? 'Select shop' : _cardShop!.name,
+                              // style: Theme.of(context).textTheme.bodyLarge,
+                            ),
+                            onTap: openShopSelector,
+                          ),
+                          Padding(
+                            padding: EdgeInsets.symmetric(horizontal: 18.0,),
+                            child: TextFormField(
+                            decoration: InputDecoration(
+                              label: const Text(
+                                  'Card Number'
+                              ),
+                              errorText: _cardNumberError,
+                            ),
+                            onSaved: (number) {
+                              _cardNumber = number!;
+                            },
+                            initialValue: widget.cardNumber,
+                          ),
+                          ),
+                        ],
+                      ),
+                    ),
                   ),
-                ),
+                ],
               ),
-              ElevatedButton(
-                  onPressed: _onSubmit, child: const Text('Submit'))
-            ],
-          ),
-        ),
-      ),
+            ),
+          ]),
+      bottomSheet:
+      // Padding(
+          // padding: EdgeInsets.symmetric(vertical: 100.0, horizontal: 15.0),
+          // child:
+        ElevatedButton(
+              style: ElevatedButton.styleFrom(
+                  minimumSize: const Size.fromHeight(50)),
+              onPressed: _onSubmit,
+              child: const Text(
+                'Submit',
+                style: TextStyle(fontSize: 24.0),
+              ))
+    // ),
     );
   }
 }
