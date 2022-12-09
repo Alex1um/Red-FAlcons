@@ -1,6 +1,5 @@
 import 'login.dart';
 import 'package:flutter/material.dart';
-import 'package:location/location.dart';
 import 'card.dart';
 import 'card_picker.dart';
 import 'package:mobile_scanner/mobile_scanner.dart';
@@ -61,53 +60,6 @@ class _HomePageState extends State<HomePage> {
 
   late UserSession _session;
 
-  // Enable needed services and get geolocation
-  Future<LocationData> _determinePosition() async {
-    var location = Location();
-
-    bool _serviceEnabled;
-    PermissionStatus _permissionGranted;
-
-    _serviceEnabled = await location.serviceEnabled();
-    if (!_serviceEnabled) {
-      _serviceEnabled = await location.requestService();
-      if (!_serviceEnabled) {
-        return Future.error('Something went wrong with enabling service');
-      }
-    }
-
-    _permissionGranted = await location.hasPermission();
-    if (_permissionGranted == PermissionStatus.denied) {
-      _permissionGranted = await location.requestPermission();
-      if (_permissionGranted != PermissionStatus.granted) {
-        return Future.error('Can\'t get location permission');
-      }
-    }
-
-    return await location.getLocation();
-  }
-
-  // Get geolocation and process it
-  void _processGeolocation() async {
-    if (!_isGeolocationRunning) {
-      try {
-        setState(() {
-          _isGeolocationRunning = true;
-        });
-        LocationData location = await _determinePosition();
-        if (location.latitude != null && location.longitude != null) {
-          var nearest = await _session.sendGeo(
-              long: location.longitude!, lat: location.latitude!);
-          // TODO: process geolocation
-          // _session.cards.sort((a, b) => nearest.indexOf());
-        }
-      } finally {
-        setState(() {
-          _isGeolocationRunning = false;
-        });
-      }
-    }
-  }
 
   void _addCardDialog(barcode, args) async {
     if (!_isAddingCard) {
@@ -136,8 +88,6 @@ class _HomePageState extends State<HomePage> {
     super.initState();
     _session = UserSession();
     _session.init();
-
-    _processGeolocation();
   }
 
   // Render home page
@@ -224,8 +174,8 @@ class _HomePageState extends State<HomePage> {
                             child: Padding(
                               padding: EdgeInsets.symmetric(vertical: 40, horizontal: 25),
                                 child: ElevatedButton(
-                                  style: ElevatedButton.styleFrom(
-                                      minimumSize: const Size.fromHeight(50)),
+                                  // style: ElevatedButton.styleFrom(
+                                  //     minimumSize: const Size.fromHeight(50)),
                                   onPressed: () {
                                     Navigator.push(
                                         context,
@@ -252,26 +202,11 @@ class _HomePageState extends State<HomePage> {
                       ],
                     ),
                   ])),
-          // Debug button
-          // floatingActionButton: FloatingActionButton(
-          //   onPressed: () {
-          //     setState(() {
-          //       _session.addCard(UserCard(
-          //           shop: Shop.undefined(name: 'Unknown'),
-          //           cardNumber: '9780141026626'));
-          //       _processGeolocation();
-              // });
-            // },
-            // tooltip: 'Get geolocation',
-            // child: const Icon(Icons.add),
-          // ),
-          floatingActionButtonLocation:
-              FloatingActionButtonLocation.centerFloat,
           // Bottom navigation bar
           bottomNavigationBar: TabBar(
             tabs: const [
-              Tab(icon: Icon(Icons.search), text: 'Search'),
-              Tab(icon: Icon(Icons.filter_list), text: 'Suggested'),
+              Tab(icon: Icon(Icons.account_balance_wallet_outlined), text: 'Cards'),
+              Tab(icon: Icon(Icons.approval), text: 'Suggested'),
               Tab(icon: Icon(Icons.add_card), text: 'Add new'),
             ],
             indicatorColor: Theme.of(context).colorScheme.primary,

@@ -1,3 +1,5 @@
+import 'package:http/src/response.dart';
+
 import 'card.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'dart:convert';
@@ -5,6 +7,33 @@ import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:requests/requests.dart';
 import 'config.dart';
 import 'shops.dart';
+import 'package:location/location.dart';
+
+// Enable needed services and get geolocation
+Future<LocationData> _determinePosition() async {
+  var location = Location();
+
+  bool _serviceEnabled;
+  PermissionStatus _permissionGranted;
+
+  _serviceEnabled = await location.serviceEnabled();
+  if (!_serviceEnabled) {
+    _serviceEnabled = await location.requestService();
+    if (!_serviceEnabled) {
+      return Future.error('Something went wrong with enabling service');
+    }
+  }
+
+  _permissionGranted = await location.hasPermission();
+  if (_permissionGranted == PermissionStatus.denied) {
+    _permissionGranted = await location.requestPermission();
+    if (_permissionGranted != PermissionStatus.granted) {
+      return Future.error('Can\'t get location permission');
+    }
+  }
+
+  return await location.getLocation();
+}
 
 class AuthError implements Exception {
   String? loginMsg;
@@ -25,17 +54,20 @@ class UserSession {
 
   init() async {
     var prefs = await SharedPreferences.getInstance();
-    prefs.remove('cards');
+    // prefs.remove('cards');
     // prefs.remove('shops');
-    var cards = prefs.getString('cards');
-    if (cards != null) {
-      Iterable l = jsonDecode(cards);
-      this.cards = List<UserCard>.from(l.map((e) => UserCard.fromJson(e)));
-    }
+
     var shops = prefs.getString('shops');
     if (shops != null) {
       Iterable l = jsonDecode(shops);
       this.shops = List<Shop>.from(l.map((e) => Shop.fromJson(e)));
+    }
+    await syncStoreData();
+
+    var cards = prefs.getString('cards');
+    if (cards != null) {
+      Iterable l = jsonDecode(cards);
+      this.cards = List<UserCard>.from(l.map((e) => UserCard.fromJson(e)));
     }
 
     try {
@@ -44,8 +76,20 @@ class UserSession {
     } catch (e) {
       print(e);
     }
-    await syncStoreData();
-    getCards();
+    await syncCardData();
+  }
+
+  syncCardData() async {
+    if (isLoggedIn()) {
+      // var cards = <UserCard>[];
+      Iterable l = await this._onlineSession.getCards();
+      this.cards = List<UserCard>.from(l.map((e) => UserCard.fromResponse(e, this)));
+      await saveCards();
+      LocationData location = await _determinePosition();
+      if (location.latitude != null && location.longitude != null) {
+        await _onlineSession.sendGeo(long: location.longitude!, lat: location.latitude!);
+      }
+    }
   }
 
   syncStoreData() async {
@@ -60,7 +104,6 @@ class UserSession {
   }
 
   saveCards() async {
-    print(cards);
     var prefs = await SharedPreferences.getInstance();
     await prefs.setString('cards', jsonEncode(cards));
     if (isLoggedIn()) {
@@ -75,14 +118,6 @@ class UserSession {
     }
     cards.add(newCard);
     await saveCards();
-  }
-
-  getCards() async {
-    if (isLoggedIn()) {
-      // var cards = <UserCard>[];
-      print(this._onlineSession.getCards());
-      // newCard = UserCard.fromResponse(await _onlineSession.uploadCard(newCard), this);
-    }
   }
 
   login({required String login, required String password}) async {
@@ -107,9 +142,16 @@ class UserSession {
     await _onlineSession.signOut();
   }
 
-  Future<List<int>> sendGeo({required double lat, required double long}) async {
-    return _onlineSession.sendGeo(lat: lat, long: long);
+  void procGeo({required double lat, required double long}) async {
+    var res = await _onlineSession.sendGeo(lat: lat, long: long)
+    if (res.success) {
+      Iterable l = jsonDecode(res.body);
+      this.cards = List<UserCard>.from(l.map((e) => UserCard.fromJson(e)));
+      // return List<int>.from(l.map((e) => e['store_id']));
+
+    }
   }
+
 }
 
 class OnlineSession {
@@ -121,7 +163,6 @@ class OnlineSession {
 
   uploadCard(UserCard card) async {
     var creds = {'store_id': card.shop.id, 'code': card.cardNumber, 'code_type': card.barcode.index};
-    print(creds);
     var res = await Requests.post(
         '$serverAddress/cards/',
         json: creds,
@@ -129,8 +170,6 @@ class OnlineSession {
         timeoutSeconds: 30,
         headers: {'Authorization': '${token_type} ${token}'},
     );
-    print(res.statusCode);
-    print(res.body);
     return jsonDecode(res.body);
   }
 
@@ -204,17 +243,12 @@ class OnlineSession {
     token_type = null;
   }
 
-  Future<List<int>> sendGeo({required double lat, required double long}) async {
+  Future<Response> sendGeo({required double lat, required double long}) async {
     var creds = {'latitude': lat, 'longitude': long};
-    var res = await Requests.get('$serverAddress/cards/geo',
+    return await Requests.get('$serverAddress/cards/geo',
         queryParameters: creds,
         port: serverPort,
         timeoutSeconds: 30,
         headers: {'Authorization': '${token_type} ${token}'});
-    if (res.success) {
-      Iterable l = jsonDecode(res.body);
-      return List<int>.from(l.map((e) => e['store_id']));
-    }
-    return [];
   }
 }
