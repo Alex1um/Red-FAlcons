@@ -27,7 +27,7 @@ class Card(Base):
     store_id = Column(
         Integer, ForeignKey("stores.id", ondelete="CASCADE"), nullable=False
     )
-    code = Column(Integer, nullable=False)
+    code = Column(String, nullable=False)
     code_type = Column(Integer, nullable=False)
     created_at = Column(
         TIMESTAMP(timezone=True), nullable=False, server_default=text("now()")

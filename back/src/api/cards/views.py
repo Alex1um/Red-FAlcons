@@ -4,7 +4,13 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from ...external.db.session import get_session
 from ...external.oauth2.core import get_current_user
 from ...external.oauth2.schemas import TokenData
-from .core import create_card, get_all_cards, get_sorted_card_list, delete_card
+from .core import (
+    create_card,
+    get_all_cards,
+    get_single_card,
+    get_sorted_card_list,
+    delete_card,
+)
 from .schemas import CardIn, CardOut
 
 
@@ -56,3 +62,16 @@ async def delete_card_view(
     db: AsyncSession = Depends(get_session),
 ):
     return await delete_card(int(token_data.id), card_id, db)
+
+
+@cards_router.get(
+    "/{card_id}",
+    summary="Get single card.",
+    response_model=CardOut,
+)
+async def get_single_card_view(
+    card_id: int,
+    token_data: TokenData = Depends(get_current_user),
+    db: AsyncSession = Depends(get_session),
+):
+    return await get_single_card(int(token_data.id), card_id, db)

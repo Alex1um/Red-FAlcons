@@ -109,9 +109,9 @@ async def get_sorted_card_list(
 async def find_nearest_shop(user_lat, user_lon, query) -> float:
     overpass = Overpass()
     shops = overpass.query(
-        query + "(around:1000," + str(user_lat) + "," + str(user_lon) + "); out body;"
+        query + "(around:10000," + str(user_lat) + "," + str(user_lon) + "); out body;"
     ).elements()
-    min_dist = 1000000
+    min_dist = 1_000_000
     for shop in shops:
         dist = await calculate_length(user_lat, user_lon, shop.lat(), shop.lon())
         min_dist = dist if dist < min_dist else min_dist
@@ -138,3 +138,25 @@ async def calculate_length(
     ) * math.cos(delta)
     arctg = math.atan2(num, denom)
     return R * arctg
+
+
+async def get_single_card(user_id: int, card_id: int, db: AsyncSession) -> Card:
+    """
+    Retrieves single card from DB.
+    """
+    query = select(User).where(User.id == user_id)
+    res = await db.execute(query)
+    user = res.scalar_one_or_none()
+    if not user:
+        raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED)
+
+    query = select(Card).where(Card.id == card_id).where(Card.owner == user)
+    logger.debug(query)
+    result = await db.execute(query)
+    card = result.scalar_one_or_none()
+    if not card:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND, detail="You don't have this card"
+        )
+    logger.info(f"Give single card from DB.")
+    return card
