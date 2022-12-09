@@ -10,7 +10,7 @@ shops_router = APIRouter(tags=["stores"])
 
 
 @shops_router.get(
-    "/stores", summary="Get closest shops.", response_model=list[StoreOut]
+    "/stores", summary="Get all stores from db.", response_model=list[StoreOut]
 )
 async def find_shops_view(
     db: AsyncSession = Depends(get_session),
