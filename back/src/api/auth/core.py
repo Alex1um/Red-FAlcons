@@ -1,7 +1,7 @@
 from fastapi import HTTPException, status
 from fastapi.security.oauth2 import OAuth2PasswordRequestForm
 from loguru import logger
-from sqlalchemy import select
+from sqlalchemy import select, delete
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from ...external.db.models import User
@@ -40,20 +40,14 @@ async def create_user(user: UserIn, db: AsyncSession) -> User:
     return new_user
 
 
-async def get_user(id: int, db: AsyncSession) -> User:
-    """Retrieves user from DB by id."""
-    query = select(User).where(User.id == id)
-    res = await db.execute(query)
-    old_user = res.scalars().first()
-
-    if not old_user:
-        logger.info(f"User with id {id} does not exist.")
-        raise HTTPException(
-            status_code=status.HTTP_404_NOT_FOUND,
-            detail=f"User with id {id} does not exist.",
-        )
-
-    return old_user
+async def delete_user(user_id: int, db: AsyncSession) -> None:
+    """
+    Deletes user from DB.
+    """
+    query = delete(User).where(User.id == user_id)
+    await db.execute(query)
+    await db.commit()
+    logger.info(f"Deleted user with id: {user_id} from DB.")
 
 
 async def get_token(

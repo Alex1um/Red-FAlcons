@@ -1,10 +1,12 @@
 import math
+
 from OSMPythonTools.overpass import Overpass
+from fastapi import HTTPException, status
 from loguru import logger
-from sqlalchemy import select
+from sqlalchemy import select, delete
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from ...external.db.models import Card, Store
+from ...external.db.models import Card, Store, User
 from .schemas import CardIn
 
 
@@ -13,9 +15,13 @@ async def get_all_cards(
     db: AsyncSession,
 ) -> list[Card]:
     """Retrieves all cards from DB for that user."""
-    query = select(Card).where(Card.owner_id == user_id)
-    query_result = await db.execute(query)
-    return query_result.scalars().all()
+    query = select(User).where(User.id == user_id)
+    res = await db.execute(query)
+    user = res.scalar_one_or_none()
+    if not user:
+        raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED)
+
+    return user.cards
 
 
 async def get_store_name(store_id: int, db: AsyncSession) -> str:
@@ -36,11 +42,17 @@ async def create_card(card: CardIn, user_id: int, db: AsyncSession) -> Card:
 
     Returns Card obj.
     """
+    query = select(User).where(User.id == user_id)
+    res = await db.execute(query)
+    user = res.scalar_one_or_none()
+    if not user:
+        raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED)
+
     card_dict = card.dict()
     card_dict["owner_id"] = user_id
-
     new_card = Card(**card_dict)
-    db.add(new_card)
+    user.cards.append(new_card)
+    db.add(user)
     await db.commit()
     await db.refresh(new_card)
 
@@ -49,9 +61,34 @@ async def create_card(card: CardIn, user_id: int, db: AsyncSession) -> Card:
     return new_card
 
 
+async def delete_card(user_id: int, card_id: int, db: AsyncSession) -> None:
+    """
+    Deletes card from DB.
+    """
+    query = select(User).where(User.id == user_id)
+    res = await db.execute(query)
+    user = res.scalar_one_or_none()
+    if not user:
+        raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED)
+
+    query = (
+        delete(Card)
+        .where(Card.id == card_id)
+        .where(Card.owner == user)
+        .returning(Card.id)
+    )
+    result = await db.execute(query)
+    if not result.scalar_one_or_none():
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND, detail="You don't have this card"
+        )
+    await db.commit()
+    logger.info(f"Deleted card with id {card_id} from DB.")
+
+
 async def get_sorted_card_list(
     user_id: int, db: AsyncSession, user_lat: float, user_lon: float
-):
+) -> list[Card]:
     cards = await get_all_cards(user_id, db)
     cards_map = {card.store_id: card for card in cards}
 
@@ -65,7 +102,7 @@ async def get_sorted_card_list(
     ]
     logger.debug(f"{cards_id_list}")
 
-    cards_list = [cards_map[id] for id in cards_id_list]
+    cards_list = [cards_map[idx] for idx in cards_id_list]
     return cards_list
 
 
