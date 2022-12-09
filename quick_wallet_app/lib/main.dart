@@ -54,7 +54,6 @@ class _HomePageState extends State<HomePage> {
   // Token storage
   // final FlutterSecureStorage _secureStorage = FlutterSecureStorage();
 
-  MobileScannerController _camController = MobileScannerController();
   bool _isAddingCard = false;
 
   // filtered list of cards

@@ -24,7 +24,7 @@ class Shop extends Equatable {
   Map<String, dynamic> toJson() => {
         'id': id,
         'name': name,
-        'default_code_type': default_code_type,
+        'default_code_type': default_code_type.index,
       };
 
   @override

@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:quick_wallet_app/user_session.dart';
 
-
 // Login page Widget
 class LoginView extends StatefulWidget {
   LoginView({super.key, required this.session});
@@ -24,14 +23,14 @@ class _LoginState extends State<LoginView> {
   // Is showing pass?
   bool _showPass = false;
 
-  // Showing error below email field
-  String? _emailError;
+  // Showing error below login field
+  String? _loginError;
 
   // Showing error below password field
   String? _passError;
 
   // Email field value
-  String _email = '';
+  String _login = '';
 
   // Password field value
   String _password = '';
@@ -40,26 +39,25 @@ class _LoginState extends State<LoginView> {
   bool _isSubmitting = false;
 
   // Request on submit
-  void _onSubmit() async {
+  void _onSubmit({bool isRegister = false}) async {
     if (!_isSubmitting && _formKey.currentState!.validate()) {
       _isSubmitting = true;
       _formKey.currentState!.save();
       try {
-        await widget.session
-            .login(login: _email, password: _password);
+        if (isRegister) {
+          await widget.session.register(login: _login, password: _password);
+        }
+        await widget.session.login(login: _login, password: _password);
       } catch (e) {
         print("Error: $e");
         if (e.runtimeType == AuthError) {
           var auth_error = e as AuthError;
-          _emailError = auth_error.loginMsg;
+          _loginError = auth_error.loginMsg;
           _passError = auth_error.passMsg;
         }
-      }
-      finally {
+      } finally {
         _isSubmitting = false;
-        setState(() {
-
-        });
+        setState(() {});
       }
 
       // var bar = ScaffoldMessenger.of(context).showSnackBar(
@@ -79,16 +77,37 @@ class _LoginState extends State<LoginView> {
             onPressed: () => Navigator.pop(context),
           ),
         ),
-        body: Column(
-          children: [
-            Text('Logged In'),
-            ElevatedButton(onPressed: () {
-              setState(() {
-                widget.session.signOut();
-              });
-            }, child: Text("Log out")),
-            ElevatedButton(onPressed: widget.session.save, child: Text("Sync"))
-          ],
+        body: Padding(
+          padding: EdgeInsets.all(30),
+          child: Center(
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                const Text('Logged In as'),
+                SizedBox(
+                  height: 10,
+                ),
+                Text(widget.session.name!),
+                SizedBox(
+                  height: 50,
+                ),
+                // Row(children: [
+                ElevatedButton(
+                    onPressed: () {
+                      setState(() {
+                        widget.session.signOut();
+                      });
+                    },
+                    child: const Text("Log out")),
+                // ]),
+                SizedBox(
+                  height: 100,
+                ),
+                ElevatedButton(
+                    onPressed: widget.session.save, child: Icon(Icons.sync))
+              ],
+            ),
+          ),
         ),
       );
     }
@@ -104,16 +123,16 @@ class _LoginState extends State<LoginView> {
         child: Form(
           key: _formKey,
           child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
             crossAxisAlignment: CrossAxisAlignment.start,
             children: <Widget>[
               TextFormField(
                 decoration: InputDecoration(
-                  label: Text('Email address'),
-                  hintText: 'email@example.org',
-                  errorText: _emailError,
+                  label: Text('Login'),
+                  errorText: _loginError,
                 ),
-                onSaved: (email) {
-                  _email = email!;
+                onSaved: (login) {
+                  _login = login!;
                 },
               ),
               TextFormField(
@@ -142,7 +161,16 @@ class _LoginState extends State<LoginView> {
                 controlAffinity: ListTileControlAffinity.leading,
                 contentPadding: EdgeInsets.zero,
               ),
-              ElevatedButton(onPressed: _onSubmit, child: const Text('Submit'))
+              const SizedBox(
+                height: 10,
+              ),
+              Row(mainAxisAlignment: MainAxisAlignment.spaceBetween, children: [
+                ElevatedButton(
+                    onPressed: _onSubmit, child: const Text('Sign in')),
+                const Text('or'),
+                ElevatedButton(
+                    onPressed: () => _onSubmit(isRegister: true), child: const Text('Sign up')),
+              ]),
             ],
           ),
         ),

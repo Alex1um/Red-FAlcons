@@ -21,6 +21,8 @@ class UserSession {
 
   OnlineSession _onlineSession = OnlineSession();
 
+  String? get name => _onlineSession.name;
+
   init() async {
     var prefs = await SharedPreferences.getInstance();
     var cards = prefs.getString('cards');
@@ -36,6 +38,7 @@ class UserSession {
 
     try {
       await _onlineSession.load();
+      _onlineSession.name = await prefs.getString('login');
     } catch (e) {
       print(e);
     }
@@ -59,6 +62,9 @@ class UserSession {
     var prefs = await SharedPreferences.getInstance();
     await prefs.setString('cards', jsonEncode(cards));
     await prefs.setString('shops', jsonEncode(shops));
+    if (isLoggedIn()) {
+      await prefs.setString('login', _onlineSession.name!);
+    }
     await _onlineSession.save();
   }
 
@@ -80,16 +86,24 @@ class UserSession {
 
   login({required String login, required String password}) async {
     await _onlineSession.login(login: login, password: password);
+    _onlineSession.name = login;
+    await save();
     await syncStoreData();
-    await _onlineSession.save();
+  }
+
+
+  register({required String login, required String password}) async {
+    await _onlineSession.register(login: login, password: password);
   }
 
   bool isLoggedIn() {
-    return _onlineSession.isLoggedIn();
+    return _onlineSession.name != null;
+    // return _onlineSession.isLoggedIn();
   }
 
   signOut() async {
-    _onlineSession.signOut();
+    _onlineSession.name = null;
+    await _onlineSession.signOut();
   }
 
   Future<List<int>> sendGeo({required double lat, required double long}) async {
@@ -100,6 +114,7 @@ class UserSession {
 class OnlineSession {
   String? token;
   String? token_type;
+  String? name;
 
   OnlineSession();
 
@@ -149,14 +164,15 @@ class OnlineSession {
   register({required String login, required String password}) async {
     var creds = {'username': login, 'password': password};
     var res = await Requests.post('$serverAddress/auth/register',
-        body: creds, port: serverPort, timeoutSeconds: 30);
-    Map<String, String> data = jsonDecode(res.body);
+        json: creds, port: serverPort, timeoutSeconds: 30);
+    print(res.body);
+    Map<String, dynamic> data = jsonDecode(res.body);
     if (!res.success) {
-      String msg =
-          data.containsKey('detail') ? data['detail']! : "Unknown error";
+      String msg = data.containsKey('detail') ? data['detail']! : "Unknown error";
       throw AuthError(
           loginMsg: msg, passMsg: msg.contains('Username') ? null : msg);
     }
+
   }
 
   login({required String login, required String password}) async {
@@ -179,6 +195,7 @@ class OnlineSession {
     var secureStorage = FlutterSecureStorage();
     await secureStorage.delete(key: 'token');
     await secureStorage.delete(key: 'token_type');
+    await secureStorage.delete(key: 'login');
     token = null;
     token_type = null;
   }
