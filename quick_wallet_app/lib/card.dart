@@ -84,6 +84,7 @@ class UserCard extends StatelessWidget {
       width: cardWidth,
       margin: const EdgeInsets.all(10.0),
       decoration: BoxDecoration(
+        color: Colors.grey,
         // Decoration
         // image: DecorationImage(
         //     image: NetworkImage('https://yandex.ru/images/search?text=mastercard%20picture&from=tabbar&p=1&pos=37&rpt=simage&img_url=http%3A%2F%2Fmemberscommunitycu.org%2Fwp-content%2Fuploads%2F2018%2F06%2FMastercard-01.png&lr=65')
@@ -95,13 +96,15 @@ class UserCard extends StatelessWidget {
         borderRadius: const BorderRadius.all(Radius.circular(10)),
       ),
       child: Column(
-        textDirection: TextDirection.ltr,
-        crossAxisAlignment: CrossAxisAlignment.center,
+        // textDirection: TextDirection.ltr,
+        crossAxisAlignment: CrossAxisAlignment.start,
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: <Widget>[
           Text(shop.name,
-              style: TextStyle(color: Theme.of(context).primaryColorDark)),
-          Text(cardNumber, textAlign: TextAlign.center),
+              style: TextStyle(color: Colors.white),
+          ),
+          Text(cardNumber, textAlign: TextAlign.center, style: TextStyle(color: Colors.white),
+          ),
         ],
       ),
     );
@@ -145,4 +148,40 @@ class UserCard extends StatelessWidget {
 
 class StubCard extends UserCard {
   StubCard() : super(shop: Shop.undefined(name: 'Add Card'), cardNumber: '');
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      alignment: Alignment.center,
+      height: cardHeight,
+      width: cardWidth,
+      margin: const EdgeInsets.all(10.0),
+      decoration: BoxDecoration(
+        color: Colors.grey,
+        // Decoration
+        // image: DecorationImage(
+        //     image: NetworkImage('https://yandex.ru/images/search?text=mastercard%20picture&from=tabbar&p=1&pos=37&rpt=simage&img_url=http%3A%2F%2Fmemberscommunitycu.org%2Fwp-content%2Fuploads%2F2018%2F06%2FMastercard-01.png&lr=65')
+        // ),
+        border: Border.all(
+          color: Colors.grey,
+          width: 5,
+        ),
+        borderRadius: const BorderRadius.all(Radius.circular(10)),
+      ),
+      child: Column(
+        // textDirection: TextDirection.ltr,
+        crossAxisAlignment: CrossAxisAlignment.center,
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: <Widget>[
+          Text(shop.name,
+            style: const TextStyle(
+                color: Colors.white,
+              fontSize: 20.0,
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
 }
