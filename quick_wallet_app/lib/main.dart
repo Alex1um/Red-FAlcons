@@ -1,13 +1,12 @@
 import 'login.dart';
 import 'package:flutter/material.dart';
-import 'package:requests/requests.dart';
 import 'package:location/location.dart';
 import 'card.dart';
-import 'config.dart';
 import 'card_picker.dart';
 import 'package:mobile_scanner/mobile_scanner.dart';
 import 'card_adder.dart';
 import 'user_session.dart';
+import 'shops.dart';
 
 void main() {
   runApp(const QuickWalletApp());
@@ -239,17 +238,17 @@ class _HomePageState extends State<HomePage> {
                     ),
                   ])),
           // Debug button
-          // floatingActionButton: FloatingActionButton(
-          //   onPressed: () {
-          //     setState(() {
-          //       // _session.addCard(UserCard(
-          //       //     nameOfShop: 'New card', cardNumber: '9780141026626'));
-          //       _processGeolocation();
-          //     });
-          //   },
-          //   tooltip: 'Get geolocation',
-          //   child: const Icon(Icons.add),
-          // ),
+          floatingActionButton: FloatingActionButton(
+            onPressed: () {
+              setState(() {
+                _session.addCard(UserCard(
+                    shop: Shop.undefined(name: 'Unknown'), cardNumber: '9780141026626'));
+                // _processGeolocation();
+              });
+            },
+            tooltip: 'Get geolocation',
+            child: const Icon(Icons.add),
+          ),
           floatingActionButtonLocation:
               FloatingActionButtonLocation.centerFloat,
           // Bottom navigation bar

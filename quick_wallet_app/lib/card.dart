@@ -12,11 +12,17 @@ const defaultBarcodeType = BarcodeType.QrCode;
 
 // Card class
 class UserCard extends StatelessWidget {
-  UserCard({Key? key, required this.shop, required this.cardNumber, BarcodeType? barcode})
-      : this.barcode = barcode ?? shop.default_code_type, super(key: key);
+  UserCard(
+      {Key? key,
+      required this.shop,
+      required this.cardNumber,
+      BarcodeType? barcode})
+      : this.barcode = barcode ?? shop.default_code_type,
+        super(key: key);
 
   UserCard.fromResponse(Map<String, dynamic> res, UserSession session) {
-    shop = session.shops.singleWhere((element) => element.id == res['store_id']);
+    shop =
+        session.shops.singleWhere((element) => element.id == res['store_id']);
     cardNumber = res['code'];
     cardID = res['id'];
     barcode = BarcodeType.values[res['code_type']];
@@ -95,17 +101,24 @@ class UserCard extends StatelessWidget {
         ),
         borderRadius: const BorderRadius.all(Radius.circular(10)),
       ),
-      child: Column(
-        // textDirection: TextDirection.ltr,
-        crossAxisAlignment: CrossAxisAlignment.start,
-        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-        children: <Widget>[
-          Text(shop.name,
+      child: Padding(
+        padding: EdgeInsets.symmetric(vertical: 10.0,),
+        child: Column(
+          // textDirection: TextDirection.ltr,
+          crossAxisAlignment: CrossAxisAlignment.start,
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          children: <Widget>[
+            Text(
+              shop.name,
               style: TextStyle(color: Colors.white),
-          ),
-          Text(cardNumber, textAlign: TextAlign.center, style: TextStyle(color: Colors.white),
-          ),
-        ],
+            ),
+            Text(
+              cardNumber,
+              textAlign: TextAlign.center,
+              style: TextStyle(color: Colors.white),
+            ),
+          ],
+        ),
       ),
     );
   }
@@ -118,9 +131,9 @@ class UserCard extends StatelessWidget {
                 color: Colors.white,
                 child: Center(
                     child: BarcodeWidget(
-                      data: cardNumber,
-                      barcode: Barcode.fromType(barcode),
-                      errorBuilder: (context, error) => Center(child: Text(error)),
+                  data: cardNumber,
+                  barcode: Barcode.fromType(barcode),
+                  errorBuilder: (context, error) => Center(child: Text(error)),
                 )))));
   }
 
@@ -140,10 +153,10 @@ class UserCard extends StatelessWidget {
       };
 
   Map<String, dynamic> toBody() => {
-    'store_id': shop.id,
-    'code': cardNumber,
-    'code_type': barcode.index,
-  };
+        'store_id': shop.id,
+        'code': cardNumber,
+        'code_type': barcode.index,
+      };
 }
 
 class StubCard extends UserCard {
@@ -173,9 +186,10 @@ class StubCard extends UserCard {
         crossAxisAlignment: CrossAxisAlignment.center,
         mainAxisAlignment: MainAxisAlignment.center,
         children: <Widget>[
-          Text(shop.name,
+          Text(
+            shop.name,
             style: const TextStyle(
-                color: Colors.white,
+              color: Colors.white,
               fontSize: 20.0,
             ),
           ),
@@ -183,5 +197,4 @@ class StubCard extends UserCard {
       ),
     );
   }
-
 }

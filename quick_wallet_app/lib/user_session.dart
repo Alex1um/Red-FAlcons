@@ -119,14 +119,16 @@ class OnlineSession {
   OnlineSession();
 
   uploadCard(UserCard card) async {
-    var creds = {'store_id': card.shop.id, 'code': card.barcode, 'code_type': card.barcode};
+    var creds = {'store_id': card.shop.id, 'code': card.cardNumber, 'code_type': card.barcode.index};
+    print(creds);
     var res = await Requests.post(
         '$serverAddress/cards/',
-        body: creds,
+        json: creds,
         port: serverPort,
         timeoutSeconds: 30,
         headers: {'Authorization': '${token_type} ${token}'},
     );
+    print(res.body);
     return jsonDecode(res.body);
   }
 
