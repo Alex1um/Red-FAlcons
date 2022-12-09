@@ -127,7 +127,11 @@ class UserCard extends StatelessWidget {
     );
   }
 
-  void showBarcode(BuildContext context) {
+  _deleteCard(UserSession session) {
+    session.removeCard(this);
+  }
+
+  void showBarcode(BuildContext context, UserSession session) {
     Navigator.push(
         context,
         MaterialPageRoute(
@@ -138,7 +142,9 @@ class UserCard extends StatelessWidget {
                     onPressed: () => Navigator.pop(context),
                   ),
                   actions: [
-                    IconButton(onPressed: () {}, icon: const Icon(Icons.delete))
+                    IconButton(onPressed: () {
+                      _deleteCard(session);
+                    }, icon: const Icon(Icons.delete))
                   ],
                 ),
                 body: Container(

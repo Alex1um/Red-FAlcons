@@ -93,6 +93,13 @@ class UserSession {
     }
   }
 
+  removeCard(UserCard card) async {
+    if (isLoggedIn() && card.cardID != null) {
+      _onlineSession.removeCard(card);
+    }
+    cards.remove(card);
+  }
+
   syncStoreData() async {
     var res = await Requests.get('$serverAddress/stores',
     );
@@ -161,6 +168,15 @@ class OnlineSession {
   String? name;
 
   OnlineSession();
+
+  removeCard(UserCard card) async {
+    await Requests.delete(
+      '$serverAddress/cards/${card.cardID}',
+      port: serverPort,
+      timeoutSeconds: 30,
+      headers: {'Authorization': '${token_type} ${token}'},
+    );
+  }
 
   uploadCard(UserCard card) async {
     var creds = {'store_id': card.shop.id, 'code': card.cardNumber, 'code_type': card.barcode.index};

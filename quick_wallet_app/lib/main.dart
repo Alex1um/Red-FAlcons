@@ -166,7 +166,7 @@ class _HomePageState extends State<HomePage> {
                             if (card.runtimeType == StubCard) {
                               DefaultTabController.of(context)?.animateTo(2);
                             } else {
-                              card.showBarcode(context);
+                              card.showBarcode(context, _session);
                             }
                           },
                           showDivider: false,
