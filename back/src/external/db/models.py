@@ -1,4 +1,4 @@
-from sqlalchemy import Column, ForeignKey, Integer, String, text, TIMESTAMP
+from sqlalchemy import Column, ForeignKey, Integer, String, text, TIMESTAMP, BigInteger
 from sqlalchemy.orm import Mapped, relationship
 
 from .session import Base
@@ -27,7 +27,7 @@ class Card(Base):
     store_id = Column(
         Integer, ForeignKey("stores.id", ondelete="CASCADE"), nullable=False
     )
-    code = Column(Integer, nullable=False)
+    code = Column(BigInteger, nullable=False)
     code_type = Column(Integer, nullable=False)
     created_at = Column(
         TIMESTAMP(timezone=True), nullable=False, server_default=text("now()")

@@ -138,3 +138,25 @@ async def calculate_length(
     ) * math.cos(delta)
     arctg = math.atan2(num, denom)
     return R * arctg
+
+
+async def get_single_card(user_id: int, card_id: int, db: AsyncSession) -> Card:
+    """
+    Retrieves single card from DB.
+    """
+    query = select(User).where(User.id == user_id)
+    res = await db.execute(query)
+    user = res.scalar_one_or_none()
+    if not user:
+        raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED)
+
+    query = select(Card).where(Card.id == card_id).where(Card.owner == user)
+    logger.debug(query)
+    result = await db.execute(query)
+    card = result.scalar_one_or_none()
+    if not card:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND, detail="You don't have this card"
+        )
+    logger.info(f"Give single card from DB.")
+    return card
